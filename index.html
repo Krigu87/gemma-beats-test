@@ -127,24 +127,31 @@
             filter: drop-shadow(0 0 10px currentColor);
         }
 
-        /* --- Logo Styles für Verschmelzung --- */
+        /* --- Logo Styles: Sanftes Atmen & Farbwechsel-Glow --- */
         #main-logo {
             width: 260px;
             height: 260px;
             margin-bottom: 15px;
             object-fit: cover;
-            /* Radialer Verlauf maskiert die harten Kanten weg */
-            -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 70%);
-            mask-image: radial-gradient(circle, rgba(0,0,0,1) 35%, rgba(0,0,0,0) 70%);
-            animation: logoPulse 2.5s infinite alternate;
+            /* Maske für Verschmelzung beibehalten */
+            -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 70%);
+            mask-image: radial-gradient(circle, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 70%);
+            /* Zwei Animationen: Einmal sanftes Atmen, einmal der Farbwechsel-Glow */
+            animation: logoBreath 4s infinite alternate ease-in-out, neonGlow 10s infinite linear;
             z-index: 51;
-            /* Drop-Shadow für den Glow-Effekt nach außen */
-            filter: drop-shadow(0 0 15px rgba(255, 0, 204, 0.6));
         }
 
-        @keyframes logoPulse {
-            from { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255,0,204,0.5)); }
-            to { transform: scale(1.1); filter: drop-shadow(0 0 30px rgba(0,238,255,0.9)); }
+        @keyframes logoBreath {
+            from { transform: scale(0.98); }
+            to { transform: scale(1.05); }
+        }
+
+        @keyframes neonGlow {
+            0% { filter: drop-shadow(0 0 15px #ff00cc); }
+            25% { filter: drop-shadow(0 0 25px #00eeff); }
+            50% { filter: drop-shadow(0 0 15px #00ff55); }
+            75% { filter: drop-shadow(0 0 25px #ffaa00); }
+            100% { filter: drop-shadow(0 0 15px #ff00cc); }
         }
 
         #game-over-content { display: flex;
@@ -482,7 +489,7 @@
             <span style="top: 25%; left: 80%; color: #ffaa00; transform: rotate(25deg);">🎶</span>
         </div>
         
-        <!-- Das Logo verschmilzt nun mit dem Hintergrund -->
+        <!-- Das Logo mit neuem Farbwechsel-Glow -->
         <img id="main-logo" src="icon.png" alt="Gemma Beats Logo">
 
         <input type="text" id="player-name" placeholder="Dein Name" maxlength="12">
