@@ -2,7 +2,7 @@
 Dein mobiles Rhythmus-Spiel – spiele zu deiner eigenen Musik!
 
 ### 🚀 Spiel starten
-👉 **https://krigu87.github.io/Gemma-Beats/**
+👉 ****
 
 ---
 
