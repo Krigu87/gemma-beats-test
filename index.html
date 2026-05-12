@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gemma Beats Spezial</title>
+    <meta name="theme-color" content="#ff00cc">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gemma Beats">
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Gemma%20Beats%20Spezial%22%2C%22short_name%22%3A%22Gemma%20Beats%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2305050a%22%2C%22theme_color%22%3A%22%23ff00cc%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icon.png%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%20maskable%22%7D%5D%7D">
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0; width: 100%; height: 100%;
+            background-color: #111; color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            touch-action: none;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            -webkit-user-select: none; user-select: none;
+            overscroll-behavior: none;
+            display: flex;
+            justify-content: center; align-items: center;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%; height: 100%;
+            max-width: 430px; max-height: 932px;
+            background-color: #05050a;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+        }
+
+        @media (min-width: 500px) and (min-height: 700px) {
+            #game-container {
+                height: 90vh;
+                border-radius: 40px; border: 12px solid #222;
+                box-shadow: 0 0 50px rgba(255, 0, 204, 0.2);
+            }
+        }
+        
+        canvas {
+            background-color: transparent;
+            max-width: 600px; width: 100%; height: 100%;
+            z-index: 1; touch-action: none;
+        }
+
+        #health-bar-container {
+            position: absolute;
+            top: calc(50% - 75px); left: 8px; transform: translateY(-50%);
+            height: 20%; max-height: 150px; width: 10px; 
+            display: flex; flex-direction: column-reverse; gap: 0;
+            z-index: 10; pointer-events: none;
+            background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .health-box {
+            width: 100%;
+            flex: 1; background: transparent; border-radius: 0;
+            transition: background-color 0.2s;
+            border-bottom: 2px solid rgba(0,0,0,0.7);
+        }
+        .health-box:first-child { border-bottom: none;
+        }
+        
+        #ui-layer {
+            position: absolute;
+            top: 0; left: 50%; transform: translateX(-50%);
+            max-width: 600px; width: 100%; height: 100%; pointer-events: none; z-index: 5;
+        }
+
+        #top-right-controls {
+            position: absolute;
+            top: 20px; right: 25px; z-index: 100;
+            display: flex; gap: 15px; pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        #top-right-controls.ingame-active {
+            top: auto !important;
+            right: auto !important;
+            bottom: 285px !important; 
+            left: 2px !important; 
+        }
+
+        .icon-btn {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            cursor: pointer; width: 45px; height: 45px; display: flex;
+            align-items: center; justify-content: center; pointer-events: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5); transition: transform 0.1s, opacity 0.2s;
+            color: white; fill: white;
+        }
+        
+        #top-right-controls.ingame-active .icon-btn {
+            width: 32px; 
+            height: 32px;
+            opacity: 0.35; 
+            background: rgba(255,255,255,0.05);
+        }
+
+        .icon-btn:active { transform: scale(0.9); opacity: 1.0;
+        }
+
+        .menu-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 10, 0.5); 
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; 
+            z-index: 50; pointer-events: auto;
+        }
+        .hidden { display: none !important;
+        }
+
+        .watermark-notes {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1; opacity: 0.08; overflow: hidden;
+        }
+        .watermark-notes span {
+            position: absolute;
+            font-size: 4rem; 
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px; text-align: center;
+            background: -webkit-linear-gradient(#ff00cc, #00eeff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-transform: uppercase; letter-spacing: 2px;
+            z-index: 2;
+        }
+        
+        #start-screen h1 { 
+            font-size: 2.5rem; 
+            margin-bottom: 25px; 
+            animation: neonPulse 2s infinite alternate; 
+        }
+        
+        @keyframes neonPulse {
+            from { filter: drop-shadow(0 0 5px rgba(255,0,204,0.5));
+            }
+            to { filter: drop-shadow(0 0 15px rgba(0,238,255,0.8));
+            }
+        }
+
+        #game-over-content { display: flex;
+            flex-direction: column; align-items: center; width: 100%; z-index: 51; text-align: center; }
+
+        @keyframes gameOverGrow { 0% { transform: translateY(100px) scale(0.6);
+            opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1;
+            } }
+        .anim-grow {
+            animation: gameOverGrow 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            font-size: 2.2rem !important; text-align: center !important;
+            line-height: 1.2 !important; margin-bottom: 20px !important;
+        }
+        
+        h2 { color: #00eeff;
+            margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; text-align: center; text-shadow: 0 0 10px rgba(0,238,255,0.3);
+            z-index: 2;}
+
+        .gold-pulse-title {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            animation: pulseGold 2s infinite alternate;
+        }
+        
+        @keyframes pulseGold {
+            from { filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5)); transform: scale(1); }
+            to { filter: drop-shadow(0 0 15px rgba(255, 215, 0, 1)); transform: scale(1.05); }
+        }
+
+        #bg-fx { position: absolute; top: 0; left: 0; width: 100%;
+            height: 100%; pointer-events: none; z-index: 45; overflow: hidden; }
+        
+        .spotlight {
+            position: absolute;
+            top: -20vh; width: 15vw; min-width: 80px; height: 140vh;
+            transform-origin: top center; border-radius: 100px; mix-blend-mode: screen; opacity: 0.8;
+            transition: opacity 1.5s ease;
+        }
+        .spot1 { left: 25%;
+            background: linear-gradient(to bottom, rgba(255,0,204,0.9) 0%, transparent 80%); animation: sweep1 4s infinite alternate ease-in-out, colorShift 8s infinite linear;
+        }
+        .spot2 { right: 25%; background: linear-gradient(to bottom, rgba(0,238,255,0.9) 0%, transparent 80%);
+            animation: sweep2 5s infinite alternate-reverse ease-in-out, colorShift 12s infinite linear;
+        }
+
+        @keyframes sweep1 { 0% { transform: rotate(20deg); } 100% { transform: rotate(70deg);
+            } }
+        @keyframes sweep2 { 0% { transform: rotate(-20deg);
+            } 100% { transform: rotate(-70deg); } }
+        @keyframes colorShift { 0% { filter: blur(25px) hue-rotate(0deg);
+            } 100% { filter: blur(25px) hue-rotate(360deg); } }
+
+        .fog-container {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 40vh;
+            pointer-events: none; overflow: hidden; opacity: 0.7; mix-blend-mode: screen;
+            transition: opacity 1.5s ease;
+        }
+        .fog { position: absolute; bottom: -20vh; width: 150%; height: 50vh; filter: blur(50px);
+        }
+        .fog1 { background: radial-gradient(ellipse at center, rgba(255,0,204,0.6) 0%, transparent 70%);
+            animation: drift1 12s infinite alternate ease-in-out; }
+        .fog2 { background: radial-gradient(ellipse at center, rgba(0,238,255,0.6) 0%, transparent 70%);
+            animation: drift2 16s infinite alternate-reverse ease-in-out; }
+
+        @keyframes drift1 { 0% { transform: translateX(-10%);
+            } 100% { transform: translateX(10%); } }
+        @keyframes drift2 { 0% { transform: translateX(0%);
+            } 100% { transform: translateX(-20%); } }
+
+        body.hide-lights .spotlight, body.hide-lights .fog-container { display: none !important;
+        }
+
+        #go-lasers { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 46; overflow: hidden; }
+        .go-laser {
+            position: absolute;
+            bottom: -10vh; width: 6px; height: 150vh;
+            transform-origin: bottom center; mix-blend-mode: screen; border-radius: 10px;
+        }
+        .gl-1 { left: 10%; background: linear-gradient(to top, #fff, rgba(0,238,255,0));
+            box-shadow: 0 0 20px #00eeff; animation: gSweep1 2.5s infinite alternate ease-in-out;
+        }
+        .gl-2 { right: 10%; background: linear-gradient(to top, #fff, rgba(255,0,204,0));
+            box-shadow: 0 0 20px #ff00cc; animation: gSweep2 3s infinite alternate ease-in-out;
+        }
+        .gl-3 { left: 50%; background: linear-gradient(to top, #fff, rgba(0,255,85,0));
+            box-shadow: 0 0 20px #00ff55; animation: gSweep3 2s infinite alternate ease-in-out;
+        }
+        
+        @keyframes gSweep1 { 0% { transform: rotate(-50deg);
+            } 100% { transform: rotate(20deg); } }
+        @keyframes gSweep2 { 0% { transform: rotate(50deg);
+            } 100% { transform: rotate(-20deg); } }
+        @keyframes gSweep3 { 0% { transform: rotate(-30deg);
+            } 100% { transform: rotate(30deg); } }
+
+        input[type="text"] {
+            -webkit-user-select: auto !important;
+            user-select: auto !important;
+            padding: 8px; 
+            width: 75%; max-width: 300px; border-radius: 8px; border: 2px solid #333;
+            background: rgba(10,10,15,0.9); color: white;
+            text-align: center; font-size: 0.95rem;
+            margin-bottom: 8px; 
+            outline: none; appearance: none; z-index: 51;
+        }
+
+        button, .file-upload {
+            padding: 10px 18px; 
+            font-size: 0.95rem; font-weight: bold;
+            background: #3333ff; color: white; border: none; border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(51, 51, 255, 0.4);
+            transition: transform 0.1s; margin: 4px; 
+            text-align: center; display: inline-block;
+            width: 80%;
+            max-width: 250px; z-index: 51;
+        }
+        button:active { transform: scale(0.95);
+        }
+        .file-upload { background: rgba(10,10,15,0.95); border: 2px solid #ff00cc; color: #ff00cc;
+        }
+        #start-btn, #resume-btn { background: #ff00cc;
+            box-shadow: 0 5px 20px rgba(255, 0, 204, 0.5); }
+        #start-btn:disabled { background: #333;
+            color: #666; box-shadow: none; cursor: not-allowed; }
+
+        .diff-btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px; 
+            width: 80%;
+            max-width: 300px;
+            z-index: 51;
+        }
+        .diff-btn {
+            padding: 8px 5px; 
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: all 0.2s ease;
+            flex: 1;
+            text-align: center;
+        }
+        .diff-btn.active {
+            opacity: 1;
+            border: 2px solid white;
+            transform: scale(1.05);
+        }
+        .diff-easy { background-color: #00ff55; color: #000; box-shadow: 0 0 15px transparent; }
+        .diff-easy.active { box-shadow: 0 0 15px #00ff55; }
+        
+        .diff-medium { background-color: #ffaa00; color: #000; box-shadow: 0 0 15px transparent; }
+        .diff-medium.active { box-shadow: 0 0 15px #ffaa00; }
+        
+        .diff-hard { background-color: #ff3333; color: #fff; box-shadow: 0 0 15px transparent; }
+        .diff-hard.active { box-shadow: 0 0 15px #ff3333; }
+
+        .highscore-container {
+            width: 90%;
+            max-width: 450px; max-height: 35vh; overflow-y: auto; 
+            background: rgba(10,10,15,0.8); border-radius: 15px; padding: 15px; margin-bottom: 15px; z-index: 51;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .hs-entry { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 0; font-size: 0.9rem; align-items: center; }
+
+        .saved-song-entry {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1); padding: 8px 0;
+        }
+        .saved-song-name {
+            flex-grow: 1; text-align: left; cursor: pointer; color: #00eeff;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 10px;
+            font-weight: bold; font-size: 0.95rem;
+        }
+        .saved-song-name:active { color: #ff00cc; }
+        .del-song-btn {
+            background: #ff3333; padding: 6px 10px; font-size: 1.1rem; width: auto; margin: 0;
+            border-radius: 8px; box-shadow: 0 0 10px rgba(255,51,51,0.4);
+        }
+
+        .help-text { width: 85%;
+            max-width: 400px; max-height: 55vh; overflow-y: auto; color: #ddd; font-size: 0.9rem; line-height: 1.4; background: rgba(10,10,15,0.9); padding: 15px; border-radius: 15px; margin-bottom: 15px;
+            text-align: left; z-index: 2;}
+        .help-text h3 { color: #ff00cc; margin-top: 0; font-size: 1rem;
+            border-bottom: 1px solid #ff00cc; padding-bottom: 5px; margin-bottom: 8px;}
+        .help-text p { margin-bottom: 10px;
+        }
+        .help-text strong { color: #00ff55;
+        }
+        .help-text .white-bold { color: #fff !important; font-weight: bold;
+        }
+
+        #star-rating { font-size: 2.5rem; margin-top: 5px; margin-bottom: 5px; letter-spacing: 5px; z-index: 51; text-align: center;}
+        #new-hs-msg { color: #ffcc00; font-weight: bold;
+            font-size: 1.3rem; margin-top: 5px; animation: pulse 1s infinite; z-index: 51; text-align: center;}
+
+        /* Score & Combo */
+        #score-display { 
+            font-size: 3.8rem;
+            font-weight: 900; 
+            text-shadow: 3px 3px 6px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,0.8);
+            text-align: left; line-height: 1; margin-bottom: 2px;
+            color: white;
+        }
+        #combo-display { 
+            font-size: 1.8rem; 
+            color: #ffcc00; font-weight: bold; text-align: left;
+            line-height: 1; transform-origin: left top;
+            text-shadow: 2px 2px 4px rgba(0,0,0,1);
+        }
+        
+        #highscore-display { background: rgba(10,10,15,0.8);
+            padding: 5px 15px; border-radius: 10px; color: #ffcc00; margin-top: 0px; font-weight: bold; font-size: 0.9rem;
+            z-index: 51;}
+        #accuracy-display { font-size: 1.1rem; color: #ccc; margin-bottom: 5px; font-weight: bold;
+            z-index: 51; text-align: center;}
+        #max-combo-display { font-size: 1.1rem; color: #ff00cc; margin-bottom: 10px; font-weight: bold;
+            z-index: 51; text-align: center;}
+        
+        @keyframes perfectFlight { 0% { transform: translateY(100px) scale(0.6);
+            opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1;
+            } }
+        @keyframes perfectPulse { 0% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ff8800;
+            transform: scale(1); } 50% { text-shadow: 0 0 20px #fff, 0 0 40px #ffd700; transform: scale(1.05);
+            } 100% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ff8800; transform: scale(1);
+            } }
+        .anim-perfect {
+            animation: perfectFlight 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, perfectPulse 2s ease-in-out infinite 3.5s;
+            font-size: 2.2rem !important; line-height: 1.2 !important; text-align: center !important;
+            color: #ffd700 !important; -webkit-text-fill-color: #ffd700 !important;
+            -webkit-text-stroke: 1px rgba(255,255,255,0.3) !important;
+            background: none !important; margin-bottom: 20px !important;
+        }
+
+        .anim-win {
+            animation: gameOverGrow 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            font-size: 2.2rem !important; line-height: 1.2 !important; text-align: center !important;
+            background: -webkit-linear-gradient(#ff00cc, #00eeff) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            filter: drop-shadow(0 0 10px rgba(255,0,204,0.3));
+            margin-bottom: 20px !important;
+        }
+
+        @keyframes fadeIn { from { opacity: 0;
+            transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.8s ease forwards;
+            }
+
+        #ghost-ai { display: none !important; opacity: 0; pointer-events: none; position: absolute;
+            z-index: -9999; }
+            
+        .popup-box {
+            background: rgba(20, 20, 30, 0.95);
+            border: 2px solid #ff3333;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+
+        #app-exit-screen {
+            background: #000; z-index: 9999;
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+        #app-exit-screen h1 { color: #fff; text-shadow: none; animation: none; background: none; -webkit-text-fill-color: #fff; margin-bottom: 20px; }
+        #app-exit-screen p { color: #888; font-size: 1rem; margin-bottom: 30px; text-align: center; }
+
+        /* --- CHALLENGE CSS --- */
+        #challenge-popup { position: absolute; width: 80%; max-width: 320px; background: rgba(15, 15, 25, 0.98); border: 2px solid #ffaa00; border-radius: 15px; padding: 15px; display: flex; flex-direction: column; align-items: center; z-index: 100; box-shadow: 0 0 30px rgba(0,0,0,0.8); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .slot-machine-mini { width: 100%; background: #000; border-radius: 8px; margin: 10px 0; padding: 12px; min-height: 60px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; overflow: hidden; }
+        #slot-text-mini { color: #ffaa00; font-size: 0.95rem; font-weight: bold; text-align: center; text-transform: uppercase; }
+        .rolling-mini { animation: blurRoll 0.1s infinite linear; }
+        .popup-small-btn { width: 90% !important; padding: 8px 15px !important; font-size: 0.85rem !important; margin: 4px 0 !important; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes blurRoll { 0% { transform: translateY(3px); filter: blur(1px); } 100% { transform: translateY(-3px); filter: blur(1px); } }
+    </style>
+</head>
+<body>
+
+<div id="ghost-ai"></div>
+
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="bg-fx">
+        <div class="spotlight spot1"></div>
+        <div class="spotlight spot2"></div>
+        <div class="fog-container">
+            <div class="fog fog1"></div>
+            <div class="fog fog2"></div>
+        </div>
+    </div>
+
+    <div id="go-lasers" class="hidden">
+        <div class="go-laser gl-1"></div>
+        <div class="go-laser gl-2"></div>
+        <div class="go-laser gl-3"></div>
+    </div>
+
+    <div id="top-right-controls">
+        <div id="menu-btn" class="icon-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </div>
+    </div>
+
+    <div id="health-bar-container" class="hidden">
+        <div class="health-box"></div><div class="health-box"></div><div class="health-box"></div><div class="health-box"></div><div class="health-box"></div>
+        <div class="health-box"></div><div class="health-box"></div><div class="health-box"></div><div class="health-box"></div><div class="health-box"></div>
+    </div>
+
+    <div id="ui-layer" class="hidden">
+        <div style="position: absolute; top: 60px; left: 25px;">
+            <div id="score-display">0</div>
+            <div id="combo-display"></div>
+        </div>
+    </div>
+
+    <!-- START SCREEN -->
+    <div id="start-screen" class="menu-overlay">
+        <div class="watermark-notes">
+            <span style="top: 15%; left: 10%; color: #ff00cc; transform: rotate(-20deg);">🎵</span>
+            <span style="top: 65%; left: 75%; color: #00eeff; transform: rotate(15deg);">🎶</span>
+            <span style="top: 75%; left: 15%; color: #00ff55; transform: rotate(-10deg);">🎵</span>
+            <span style="top: 25%; left: 80%; color: #ffaa00; transform: rotate(25deg);">🎶</span>
+        </div>
+        
+        <h1 id="main-title">Gemma<br>Beats</h1>
+        <input type="text" id="player-name" placeholder="Dein Name" maxlength="12">
+        
+        <button id="open-saved-songs-btn" class="hidden" style="background: #7722ff; margin-bottom: 10px;">📂 Gespeicherte Songs</button>
+        
+        <label class="file-upload">
+            🎵 Neuen Song laden
+            <input type="file" id="audio-upload" accept="audio/*" style="display:none;">
+        </label>
+        <div id="song-name" style="color:#00eeff; margin:10px 0; font-weight:bold; z-index: 51; text-align: center;">Kein Song ausgewählt</div>
+        
+        <div class="diff-btn-container">
+            <div class="diff-btn diff-easy" data-diff="Leicht">Leicht</div>
+            <div class="diff-btn diff-medium active" data-diff="Mittel">Mittel</div>
+            <div class="diff-btn diff-hard" data-diff="Schwer">Schwer</div>
+        </div>
+
+        <div id="highscore-display"></div>
+        <button id="start-btn" disabled>PLAY</button>
+    </div>
+
+    <!-- SAVED SONGS SCREEN -->
+    <div id="saved-songs-screen" class="menu-overlay hidden">
+        <h2>Deine Songs</h2>
+        <input type="text" id="song-search-input" placeholder="Song suchen...">
+        <div id="saved-songs-list" class="highscore-container" style="max-height: 40vh;"></div>
+        <button id="close-saved-songs-btn" style="background: #555;">Zurück</button>
+    </div>
+
+    <!-- SETTINGS SCREEN -->
+    <div id="main-settings-screen" class="menu-overlay hidden">
+        <div class="watermark-notes">
+            <span style="top: 20%; left: 80%; color: #ff00cc; transform: rotate(10deg);">🎵</span>
+            <span style="top: 70%; left: 10%; color: #00eeff; transform: rotate(-15deg);">🎶</span>
+        </div>
+        <h2>Einstellungen</h2>
+        
+        <button id="challenge-modus-btn" style="background: #ffaa00; color: #000; box-shadow: 0 5px 15px rgba(255, 170, 0, 0.4); margin-bottom: 10px;">🎰 Challenge Modus</button>
+        <button id="ms-help-btn" style="background: #ff00cc;">Hilfe & Regeln</button>
+        <button id="ms-highscore-btn">Highscores</button>
+        <button id="main-menu-back-btn" style="background: #ff3333; margin-top: 15px;">Hauptmenü</button>
+        
+        <button id="exit-game-btn" style="background: #990000; border: 1px solid #ff3333; margin-top: 15px;">Spiel beenden</button>
+        
+        <button onclick="closeMainSettings()" style="margin-top: 10px; background: #555;">Zurück</button>
+    </div>
+
+    <!-- CHALLENGE POPUP -->
+    <div id="challenge-popup" class="hidden">
+        <h3 style="color: #ffaa00; margin: 0; font-size: 1.1rem; text-transform: uppercase;">Challenge!</h3>
+        <div class="slot-machine-mini">
+            <div id="slot-text-mini">Zieh am Hebel!</div>
+        </div>
+        <button id="spin-btn" class="popup-small-btn" style="background: #ffaa00; color: #000;">NOCHMAL DREHEN</button>
+        <button id="accept-challenge-btn" class="popup-small-btn" style="background: #00ff55; color: #000;">ANNEHMEN</button>
+        <button onclick="closeChallengePopup()" style="background: transparent; border: 1px solid #555; color: #888; font-size: 0.8rem; margin-top: 5px; width: auto; padding: 4px 12px;">ABBRECHEN</button>
+    </div>
+
+    <!-- HELP SCREEN -->
+    <div id="help-screen" class="menu-overlay hidden">
+        <h2>So geht's!</h2>
+        <div class="help-text">
+            <h3>🎵 Die Basics</h3>
+            <p>Triff die Noten im richtigen Moment durch einfaches Tippen auf den unteren Bereich des Bildschirms. Je präziser du tippst, desto besser ist die Wertung (<span class="white-bold">GUT</span>, <span class="white-bold">SEHR GUT</span> oder <span class="white-bold">PERFEKT</span>) und desto mehr Punkte erhältst du.</p>
+            
+            <h3>❤️ Deine Energie (Lebensbalken)</h3>
+            <p>Achte auf den <strong>Balken am linken Bildschirmrand</strong>! Er hat Platz für 10 Fehler – sinkt die Energie auf Null, fliegst du raus. Eine verpasste Note oder ein blinder Tipp ins Leere (Leerklick) kostet jeweils ein Leben und zerstört sofort deine Combo. <br>
+            Durch Heilung kannst du den Balken wieder auffüllen und so im Verlauf eines Songs auch insgesamt mehr als 10 Fehler überstehen, solange die Energie nie komplett leer ist.
+            (Leerklicks beeinflussen am Ende nicht deine Sterne-Bewertung).</p>
+
+            <h3>💚 Heilung</h3>
+            <p>Triffst du <strong>20 Noten fehlerfrei</strong> hintereinander, erhältst du ein Leben im Balken zurück.</p>
+
+            <h3>⭐ Sterne-Bewertung</h3>
+            <p>Am Ende wird abgerechnet (nur echte verpasste Noten zählen, ohne Leerklicks):<br>
+            <strong style="color: #ffd700; text-shadow: 0 0 5px #ffaa00;">🌟 5 Sterne:</strong> 0 Fehler & <span class="white-bold">100% perfekt getroffen</span> (Absolute Perfektion)<br>
+            <strong>5 Sterne:</strong> 0 Fehler (Episch gespielt)<br>
+            <strong>4 - 4.5 Sterne:</strong> 1-3 Fehler (Du rockst)<br>
+            <strong>3 - 3.5 Sterne:</strong> 4-6 Fehler (Sehr gut gespielt)<br>
+            <strong>2 - 2.5 Sterne:</strong> 7-9 Fehler (Gut gespielt)<br>
+            <strong>Unter 2:</strong> Weiter üben!</p>
+
+            <h3>🚥 Schwierigkeit</h3>
+            <p><strong>Leicht:</strong> Nimmt nur die markantesten Bässe.
+            <strong>Mittel:</strong> Normaler Takt. <br><strong>Schwer:</strong> Reagiert auf feinere Beats. Die Noten fallen exakt gleich schnell wie auf Leicht, aber es kommen deutlich mehr Noten in kürzeren Abständen!</p>
+
+            <h3>🎰 Challenge Modus</h3>
+            <p>Zieh im Einstellungsmenü am Hebel, um eine zufällige Aufgabe zu erhalten (z.B. auf einem Bein spielen oder das Handy kopfüber halten).</p>
+
+            <h3>🏆 Speicherung & Highscores</h3>
+            <p>Das Spiel speichert deine <strong>Highscores</strong> und <strong>Songs</strong> automatisch lokal auf deinem Smartphone.
+            So bleibt dein Fortschritt erhalten.</p>
+
+            <h3>📂 Eigene Songs laden</h3>
+            <p><strong>Android:</strong> Auf "Neuen Song laden" tippen und Song aus dem Dateimanager auswählen.</p>
+            <p><strong>iPhone / iPad:</strong><br>
+            1. Speicher deine MP3-Datei zuerst lokal in der <span class="white-bold">"Dateien"-App</span>.<br>
+            2. Tippe hier auf "Neuen Song laden".<br>
+            3. Wähle deine Datei aus der Liste aus.</p>
+        </div>
+        <button id="help-back-btn" style="background: #555;">Alles klar!</button>
+    </div>
+
+    <!-- PAUSE SCREEN -->
+    <div id="pause-screen" class="menu-overlay hidden">
+        <h1>Pausiert</h1>
+        <button id="resume-btn">Weiter</button>
+        <button id="restart-btn" style="background: #ffaa00;">Neustart</button>
+        <button id="pause-help-btn" style="background: #ff00cc;">Hilfe & Regeln</button>
+        <button id="pause-exit-btn" style="background: #ff3333;">Beenden</button>
+    </div>
+
+    <!-- HIGHSCORE SCREEN -->
+    <div id="highscore-screen" class="menu-overlay hidden">
+        <h2 class="gold-pulse-title">Highscores</h2>
+        <input type="text" id="hs-search-input" placeholder="Nach Song suchen...">
+        <div id="highscore-list" class="highscore-container" style="max-height: 40vh;"></div>
+        <button id="hs-back-btn" style="background: #555;">Zurück</button>
+    </div>
+
+    <!-- GAME OVER SCREEN -->
+    <div id="game-over-screen" class="menu-overlay hidden">
+        <h1 id="game-over-title"></h1>
+        <div id="game-over-content" style="text-align: center; display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <div id="new-hs-msg" class="hidden">NEUER HIGHSCORE! 🏆</div>
+            <div id="star-rating"></div>
+            <div id="hit-ratio-display" style="margin-bottom:5px; text-align: center; width: 100%;"></div>
+            <div id="accuracy-display" style="text-align: center; width: 100%;"></div>
+            <div id="max-combo-display" style="text-align: center; width: 100%;"></div>
+            <div id="go-current-highscore" style="color: #aaa; font-size: 0.9rem; margin-bottom: 2px; text-align: center; width: 100%;"></div>
+            <p id="final-score" style="margin-bottom:20px; text-align: center; width: 100%;">Punkte: 0</p>
+            <button id="go-restart-btn" style="background: #ffaa00; margin-bottom: 15px;">Nochmal spielen</button>
+            <button id="go-home-btn">Hauptmenü</button>
+        </div>
+    </div>
+
+    <!-- CONFIRM DELETE SCREEN -->
+    <div id="confirm-delete-screen" class="menu-overlay hidden" style="z-index: 60; background: rgba(0,0,0,0.85);">
+        <div class="popup-box">
+            <h2 style="font-size: 1.5rem; margin-bottom: 20px; color: #fff; text-shadow: none;">Willst du den Song wirklich löschen?</h2>
+            <div style="display: flex; gap: 10px; width: 100%; justify-content: center;">
+                <button id="confirm-yes-btn" style="background: #ff3333; flex: 1;">Ja</button>
+                <button id="confirm-no-btn" style="background: #555; flex: 1;">Nein</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP EXIT SCREEN -->
+    <div id="app-exit-screen" class="menu-overlay hidden">
+        <h1>Tschüss!</h1>
+        <p>Du kannst diesen Tab jetzt schließen.</p>
+        <button onclick="location.reload()" style="background: #555;">Neu laden</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const bgFx = document.getElementById('bg-fx');
+    const goLasers = document.getElementById('go-lasers');
+    const uiLayer = document.getElementById('ui-layer');
+    const healthBarContainer = document.getElementById('health-bar-container');
+    const healthBoxes = document.querySelectorAll('.health-box');
+    const gameOverScreen = document.getElementById('game-over-screen');
+    const startScreen = document.getElementById('start-screen');
+    const mainSettingsScreen = document.getElementById('main-settings-screen');
+    const pauseScreen = document.getElementById('pause-screen');
+    const helpScreen = document.getElementById('help-screen');
+    const highscoreScreen = document.getElementById('highscore-screen');
+    const savedSongsScreen = document.getElementById('saved-songs-screen');
+    const confirmDeleteScreen = document.getElementById('confirm-delete-screen');
+    const appExitScreen = document.getElementById('app-exit-screen');
+    const startBtn = document.getElementById('start-btn');
+    const audioUpload = document.getElementById('audio-upload');
+    const playerNameInput = document.getElementById('player-name');
+    
+    const openSavedBtn = document.getElementById('open-saved-songs-btn');
+    const savedSongsList = document.getElementById('saved-songs-list');
+    const songSearchInput = document.getElementById('song-search-input');
+    const confirmYesBtn = document.getElementById('confirm-yes-btn');
+    const confirmNoBtn = document.getElementById('confirm-no-btn');
+    const hsSearchInput = document.getElementById('hs-search-input');
+    const exitGameBtn = document.getElementById('exit-game-btn');
+    const topControls = document.getElementById('top-right-controls');
+    const menuBtn = document.getElementById('menu-btn');
+
+    const ICON_GEAR = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>`;
+    const ICON_PAUSE = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+
+    let isPlaying = false, isPaused = false, isGameOver = false, audioEnded = false;
+    let score = 0, combo = 0, maxCombo = 0, multiplier = 1, misses = 0, totalMisses = 0, spawnedNotes = 0;
+    let perfects = 0, greats = 0, oks = 0;
+    let notes = [], floatingTexts = [], confetti = [], flames = [], fireworks = [], pulsingStars = [], beatmap = [];
+    let audioCtx, audioEle, delayNode, audioFileUrl, currentSongName = "";
+    const LANES = 4, COLORS = ['#ff00cc', '#00eeff', '#00ff55', '#ffaa00'];
+    let lastTime = 0, hitZoneY = 0, noteSpeed = 0, trackWidth = 0, trackMargin = 20, boardOpacity = 1.0, targetBoardOpacity = 1.0;
+    let currentDifficulty = 'Mittel';
+    
+    let damageFlashTimer = 0;
+    let songToDelete = null;
+    
+    let activeEffects = { flames: false, pulsing: false, fireworks: false, fireworksTimer: 0, confettiTimer: 0, confettiGold: false };
+    let previousScreen = null;
+    let isCountingDown = false;
+    let countdownTimer = 0;
+    let currentLoopId = null;
+    
+    const DIFF = {
+        'Leicht': { maxMisses: 10, minGap: 0.35, threshMult: 1.6, hitZone: [40, 75] },
+        'Mittel': { maxMisses: 10, minGap: 0.24, threshMult: 1.35, hitZone: [40, 75] },
+        'Schwer': { maxMisses: 10, minGap: 0.14, threshMult: 1.15, hitZone: [40, 75] } 
+    };
+    
+    let db;
+    const dbRequest = indexedDB.open("GemmaBeatsDB", 1);
+    dbRequest.onupgradeneeded = e => { e.target.result.createObjectStore("songs"); };
+    dbRequest.onsuccess = e => { db = e.target.result; loadSavedSongs(); };
+    
+    function loadSavedSongs() {
+        renderSavedSongs();
+    }
+
+    function renderSavedSongs(filterText = "") {
+        const tx = db.transaction("songs", "readonly");
+        const request = tx.objectStore("songs").getAllKeys();
+        request.onsuccess = () => {
+            let keys = request.result;
+            
+            if (keys.length > 0) {
+                openSavedBtn.classList.remove('hidden');
+            } else {
+                openSavedBtn.classList.add('hidden');
+                if (!savedSongsScreen.classList.contains('hidden')) {
+                    savedSongsScreen.classList.add('hidden');
+                    startScreen.classList.remove('hidden');
+                }
+            }
+
+            savedSongsList.innerHTML = '';
+            let filtered = keys.filter(k => k.toLowerCase().includes(filterText.toLowerCase()));
+
+            if (filtered.length === 0 && keys.length > 0) {
+                savedSongsList.innerHTML = '<p style="color:#aaa; text-align:center;">Keine Songs gefunden.</p>';
+            }
+
+            filtered.forEach(k => {
+                const item = document.createElement('div');
+                item.className = 'saved-song-entry';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'saved-song-name';
+                nameSpan.innerText = k;
+                nameSpan.onclick = () => selectSavedSong(k);
+
+                const delBtn = document.createElement('button');
+                delBtn.className = 'del-song-btn';
+                delBtn.innerText = '🗑️';
+                delBtn.onclick = () => {
+                    songToDelete = k;
+                    confirmDeleteScreen.classList.remove('hidden');
+                };
+
+                item.appendChild(nameSpan);
+                item.appendChild(delBtn);
+                savedSongsList.appendChild(item);
+            });
+        };
+    }
+
+    confirmYesBtn.onclick = () => {
+        if(songToDelete) {
+            deleteSavedSong(songToDelete);
+            songToDelete = null;
+        }
+        confirmDeleteScreen.classList.add('hidden');
+    };
+
+    confirmNoBtn.onclick = () => {
+        songToDelete = null;
+        confirmDeleteScreen.classList.add('hidden');
+    };
+
+    function selectSavedSong(songName) {
+        const tx = db.transaction("songs", "readonly");
+        const request = tx.objectStore("songs").get(songName);
+        request.onsuccess = () => {
+            audioFileUrl = URL.createObjectURL(request.result);
+            currentSongName = songName;
+            updateSongTitleDisplay();
+            startBtn.disabled = false;
+            
+            savedSongsScreen.classList.add('hidden');
+            startScreen.classList.remove('hidden');
+        };
+    }
+
+    function deleteSavedSong(songName) {
+        const tx = db.transaction("songs", "readwrite");
+        tx.objectStore("songs").delete(songName);
+        tx.oncomplete = () => {
+            let hss = JSON.parse(localStorage.getItem('gemma_highscores') || "{}");
+            let newHss = {};
+            for (let key in hss) {
+                if (hss[key].song !== songName) {
+                    newHss[key] = hss[key];
+                }
+            }
+            localStorage.setItem('gemma_highscores', JSON.stringify(newHss));
+
+            if (currentSongName === songName) {
+                currentSongName = "";
+                audioFileUrl = null;
+                updateSongTitleDisplay();
+                startBtn.disabled = true;
+            }
+
+            renderSavedSongs(songSearchInput.value);
+        };
+    }
+
+    openSavedBtn.onclick = () => {
+        startScreen.classList.add('hidden');
+        savedSongsScreen.classList.remove('hidden');
+        songSearchInput.value = ""; 
+        renderSavedSongs();
+    };
+
+    document.getElementById('close-saved-songs-btn').onclick = () => {
+        savedSongsScreen.classList.add('hidden');
+        startScreen.classList.remove('hidden');
+    };
+
+    songSearchInput.addEventListener('input', (e) => {
+        renderSavedSongs(e.target.value);
+    });
+
+    hsSearchInput.addEventListener('input', (e) => {
+        showHighscores(e.target.value);
+    });
+
+    function resize() {
+        const container = document.getElementById('game-container');
+        canvas.width = container.clientWidth; canvas.height = container.clientHeight;
+        hitZoneY = canvas.height - 80; noteSpeed = (hitZoneY + 50) / 1.5;
+        trackMargin = 20; trackWidth = canvas.width - (trackMargin * 2);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    
+    function updateSongTitleDisplay() {
+        const titleEl = document.getElementById('song-name');
+        if (currentSongName) {
+            titleEl.innerHTML = `${currentSongName}`;
+        } else {
+            titleEl.innerText = "Kein Song ausgewählt";
+        }
+    }
+
+    playerNameInput.value = localStorage.getItem('gemma_player_name') || "";
+    
+    const diffButtons = document.querySelectorAll('.diff-btn');
+    diffButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            diffButtons.forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            currentDifficulty = e.target.getAttribute('data-diff');
+        });
+    });
+
+    audioUpload.addEventListener('change', e => {
+        const file = e.target.files[0];
+        if (file) {
+            audioFileUrl = URL.createObjectURL(file);
+            currentSongName = file.name.replace(/\.[^/.]+$/, "").substring(0, 30);
+            const tx = db.transaction("songs", "readwrite");
+            tx.objectStore("songs").put(file, currentSongName);
+            tx.oncomplete = () => loadSavedSongs();
+ 
+            updateSongTitleDisplay();
+            startBtn.disabled = false;
+        }
+    });
+    
+    menuBtn.onclick = () => {
+        if (isPlaying) { 
+            isPlaying = false;
+            isPaused = true; audioEle.pause(); pauseScreen.classList.remove('hidden'); 
+            topControls.classList.add('hidden');
+        }
+        else { 
+            startScreen.classList.add('hidden');
+            mainSettingsScreen.classList.remove('hidden'); 
+            topControls.classList.add('hidden');
+        }
+    };
+
+    window.closeMainSettings = () => { 
+        mainSettingsScreen.classList.add('hidden');
+        startScreen.classList.remove('hidden'); 
+        topControls.classList.remove('hidden');
+    };
+
+    exitGameBtn.onclick = () => {
+        if (navigator.app && navigator.app.exitApp) {
+            navigator.app.exitApp(); 
+        } else if (navigator.device && navigator.device.exitApp) {
+            navigator.device.exitApp(); 
+        } else {
+            mainSettingsScreen.classList.add('hidden');
+            appExitScreen.classList.remove('hidden');
+        }
+    };
+
+    function clearVisualsAndStates() {
+        isGameOver = false; isPlaying = false;
+        isPaused = false; audioEnded = false;
+        notes = []; confetti = []; flames = []; fireworks = [];
+        pulsingStars = []; floatingTexts = [];
+        activeEffects = { flames: false, pulsing: false, fireworks: false, fireworksTimer: 0, confettiTimer: 0, confettiGold: false };
+        goLasers.classList.add('hidden');
+        damageFlashTimer = 0;
+        boardOpacity = 0.0; targetBoardOpacity = 0.0;
+        startBtn.innerText = "PLAY";
+    }
+
+    function goToStartScreen() {
+        if (audioEle) { audioEle.pause();
+            audioEle.currentTime = 0; }
+        clearVisualsAndStates();
+        draw();
+        
+        gameOverScreen.classList.add('hidden');
+        pauseScreen.classList.add('hidden');
+        mainSettingsScreen.classList.add('hidden');
+        helpScreen.classList.add('hidden');
+        highscoreScreen.classList.add('hidden');
+        savedSongsScreen.classList.add('hidden');
+        confirmDeleteScreen.classList.add('hidden');
+        uiLayer.classList.add('hidden');
+        healthBarContainer.classList.add('hidden');
+        
+        startScreen.classList.remove('hidden');
+        topControls.classList.remove('hidden');
+        
+        topControls.classList.remove('ingame-active');
+        menuBtn.innerHTML = ICON_GEAR; 
+        
+        document.body.classList.remove('hide-lights');
+        beatmap = [];
+    }
+
+    document.getElementById('main-menu-back-btn').onclick = goToStartScreen;
+    document.getElementById('pause-exit-btn').onclick = goToStartScreen;
+    document.getElementById('go-home-btn').onclick = goToStartScreen;
+    
+    document.getElementById('resume-btn').onclick = () => { 
+        pauseScreen.classList.add('hidden'); 
+        topControls.classList.remove('hidden');
+        startCountdown(); 
+    };
+    
+    document.getElementById('ms-help-btn').onclick = () => { mainSettingsScreen.classList.add('hidden'); helpScreen.classList.remove('hidden'); previousScreen = 'main'; };
+    
+    document.getElementById('pause-help-btn').onclick = () => { 
+        pauseScreen.classList.add('hidden'); 
+        helpScreen.classList.remove('hidden');
+        boardOpacity = 0.0; draw(); 
+        previousScreen = 'pause'; 
+    };
+    
+    document.getElementById('help-back-btn').onclick = () => { 
+        helpScreen.classList.add('hidden');
+        if (previousScreen === 'main') {
+            mainSettingsScreen.classList.remove('hidden'); 
+        } else if (previousScreen === 'pause') {
+            pauseScreen.classList.remove('hidden');
+            boardOpacity = 1.0; draw();
+        }
+    };
+    
+    function showHighscores(filterText = "") {
+        const hsListEl = document.getElementById('highscore-list');
+        hsListEl.innerHTML = "";
+        let hss = JSON.parse(localStorage.getItem('gemma_highscores') || "{}");
+        let entries = Object.keys(hss).map(key => hss[key]).sort((a,b) => b.score - a.score);
+        
+        if (filterText) {
+            entries = entries.filter(e => e.song.toLowerCase().includes(filterText.toLowerCase()));
+        }
+
+        if (entries.length === 0) {
+            let msg = filterText ? "Kein Song gefunden." : "Noch keine Highscores!";
+            hsListEl.innerHTML = `<p style='text-align:center; color:#888;'>${msg}</p>`;
+        } else {
+            entries.forEach(e => {
+                let color = e.diff === 'Schwer' ? '#ff3333' : (e.diff === 'Leicht' ? '#00ff55' : '#ffaa00');
+                hsListEl.innerHTML += `
+                <div class="hs-entry">
+                    <span class="hs-song">${e.song} <span class="hs-diff" style="color:${color}; border: 1px solid ${color}; font-size:0.7rem; padding:1px 4px; border-radius:4px; margin-left:5px;">${e.diff}</span></span>
+                    <span>${e.player}: ${e.score}</span>
+                </div>`;
+            });
+        }
+    }
+
+    document.getElementById('ms-highscore-btn').onclick = () => { 
+        mainSettingsScreen.classList.add('hidden'); 
+        highscoreScreen.classList.remove('hidden'); 
+        hsSearchInput.value = ""; 
+        showHighscores(); 
+        previousScreen = 'main'; 
+    };
+    
+    document.getElementById('hs-back-btn').onclick = () => { 
+        highscoreScreen.classList.add('hidden'); 
+        if (previousScreen === 'main') mainSettingsScreen.classList.remove('hidden'); 
+    };
+    
+    function restartGame() {
+        if (currentLoopId) cancelAnimationFrame(currentLoopId); 
+        clearVisualsAndStates();
+        
+        perfects = 0; greats = 0;
+        oks = 0; misses = 0; totalMisses = 0; score = 0; combo = 0; maxCombo = 0;
+        multiplier = 1; spawnedNotes = 0;
+        beatmap.forEach(b => b.spawned = false);
+        
+        updateUI();
+        const titleEl = document.getElementById('game-over-title');
+        if (titleEl) {
+            titleEl.classList.remove('anim-grow', 'anim-perfect', 'anim-win');
+            titleEl.style.opacity = "1";
+            titleEl.innerText = "";
+            titleEl.style.webkitTextFillColor = ""; 
+            titleEl.style.background = "";
+        }
+        document.getElementById('game-over-content').classList.remove('fade-in');
+        if (audioEle) { audioEle.pause(); audioEle.currentTime = 0; }
+        
+        gameOverScreen.classList.add('hidden');
+        pauseScreen.classList.add('hidden');
+        startCountdown();
+    }
+    document.getElementById('restart-btn').onclick = restartGame;
+    document.getElementById('go-restart-btn').onclick = restartGame;
+    
+    function hashStr(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash = ((hash << 5) - hash) + str.charCodeAt(i) | 0;
+        return Math.abs(hash);
+    }
+    function getSeededRandom(seed) {
+        let m_w = (123456789 + seed) & 0xffffffff;
+        let m_z = (987654321 - seed) & 0xffffffff;
+        return function() {
+            m_z = (36969 * (m_z & 65535) + (m_z >> 16)) & 0xffffffff;
+            m_w = (18000 * (m_w & 65535) + (m_w >> 16)) & 0xffffffff;
+            return (((m_z << 16) + (m_w & 65535)) >>> 0) / 4294967296;
+        }
+    }
+
+    async function preAnalyzeSong(fileUrl) {
+        beatmap = [];
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        const response = await fetch(fileUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        const originalBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+        
+        const offlineCtx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(1, originalBuffer.length, originalBuffer.sampleRate);
+        const source = offlineCtx.createBufferSource();
+        source.buffer = originalBuffer;
+
+        const filter = offlineCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 150; 
+
+        source.connect(filter);
+        filter.connect(offlineCtx.destination);
+        source.start(0);
+        const filteredBuffer = await offlineCtx.startRendering();
+        const data = filteredBuffer.getChannelData(0);
+
+        const step = Math.floor(filteredBuffer.sampleRate * 0.02); 
+        
+        let totalVolume = 0;
+        let sampleCount = 0;
+        for (let i = 0; i < data.length; i += step) {
+            let sum = 0;
+            let count = 0;
+            for (let j = 0; j < 100; j++) {
+                if (i + j < data.length) { sum += Math.abs(data[i + j]);
+                count++; }
+            }
+            totalVolume += (sum / count);
+            sampleCount++;
+        }
+        
+        let avgVolume = totalVolume / sampleCount;
+        let diffConfig = DIFF[currentDifficulty];
+        let threshold = Math.max(avgVolume * diffConfig.threshMult, 0.02); 
+        let minGap = diffConfig.minGap;
+
+        let prevVolume = 0;
+        let lastBeat = 0;
+        let rng = getSeededRandom(hashStr(currentSongName + currentDifficulty));
+        for (let i = 0; i < data.length; i += step) {
+            let sum = 0;
+            let count = 0;
+            for(let j=0; j<100; j++) {
+                if(i+j < data.length) { sum += Math.abs(data[i+j]);
+                count++; }
+            }
+            let localVolume = sum / count;
+            let time = i / filteredBuffer.sampleRate;
+            
+            let jump = localVolume - prevVolume;
+            if (jump > threshold && localVolume > avgVolume && (time - lastBeat) > minGap) {
+                beatmap.push({ time: time, lane: Math.floor(rng() * LANES), spawned: false });
+                lastBeat = time;
+            }
+            prevVolume = localVolume;
+        }
+    }
+
+    function spawnConfetti(amount, isGold) {
+        let cols = isGold ? ['#ffd700', '#ffaa00', '#ffffff', '#fff3b0'] : COLORS;
+        for(let i=0; i<amount; i++) {
+            confetti.push({
+                x: canvas.width/2, y: canvas.height/2 + (Math.random()*50),
+                vx: (Math.random()-0.5)*20, vy: (Math.random()-0.5)*15 - 8,
+                color: cols[Math.floor(Math.random()*cols.length)],
+                size: Math.random()*8+4, 
+                life: 3.5 
+            });
+        }
+    }
+
+    startBtn.onclick = async () => {
+        if (currentLoopId) cancelAnimationFrame(currentLoopId);
+        localStorage.setItem('gemma_player_name', playerNameInput.value.trim() || "Unbekannt");
+        
+        clearVisualsAndStates();
+        perfects = 0; greats = 0; oks = 0; misses = 0; totalMisses = 0;
+        score = 0; combo = 0; maxCombo = 0; multiplier = 1; spawnedNotes = 0;
+
+        startScreen.classList.add('hidden');
+        document.body.classList.add('hide-lights');
+        topControls.classList.add('hidden');
+        startBtn.innerText = "LÄDT (KI FILTER)..."; 
+        await preAnalyzeSong(audioFileUrl);
+        
+        topControls.classList.add('ingame-active');
+        menuBtn.innerHTML = ICON_PAUSE;
+
+        audioEle = new Audio(audioFileUrl);
+        const source = audioCtx.createMediaElementSource(audioEle);
+        delayNode = audioCtx.createDelay(2.5);
+        delayNode.delayTime.value = 1.5;
+        source.connect(delayNode); delayNode.connect(audioCtx.destination);
+        audioEle.onended = () => audioEnded = true;
+        
+        startCountdown();
+    };
+    
+    function startCountdown() {
+        if (currentLoopId) cancelAnimationFrame(currentLoopId); 
+        
+        document.body.classList.remove('hide-board');
+        uiLayer.classList.remove('hidden');
+        healthBarContainer.classList.remove('hidden');
+        updateUI();
+        
+        boardOpacity = 1.0;
+        targetBoardOpacity = 1.0;
+        isCountingDown = true; countdownTimer = 3.0; lastTime = performance.now();
+        currentLoopId = requestAnimationFrame(countdownLoop);
+    }
+
+    function countdownLoop(time) {
+        if (!isCountingDown) return;
+        const dt = (time - lastTime) / 1000; lastTime = time;
+        countdownTimer -= dt;
+        draw();
+        if (countdownTimer > 0) {
+            ctx.save(); ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = '#fff'; ctx.font = '900 100px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(Math.ceil(countdownTimer), canvas.width/2, canvas.height/2); ctx.restore();
+            currentLoopId = requestAnimationFrame(countdownLoop);
+        } else {
+            isCountingDown = false; isPaused = false;
+            isPlaying = true;
+            healthBarContainer.classList.remove('hidden');
+            topControls.classList.remove('hidden'); 
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            audioEle.play(); 
+            lastTime = performance.now();
+            currentLoopId = requestAnimationFrame(gameLoop);
+        }
+    }
+
+    function triggerGameOver(win) {
+        if (isGameOver) return;
+        isGameOver = true; isPlaying = false; 
+        if(audioEle) audioEle.pause();
+        
+        const titleEl = document.getElementById('game-over-title');
+        const contentEl = document.getElementById('game-over-content');
+        gameOverScreen.classList.remove('hidden');
+        
+        uiLayer.classList.add('hidden');
+        healthBarContainer.classList.add('hidden');
+        topControls.classList.add('hidden');
+        targetBoardOpacity = 0.0;
+        boardOpacity = 0.0;
+        draw();
+        
+        let totalHits = perfects + greats + oks;
+        let weighted = (perfects * 100) + (greats * 75) + (oks * 25);
+        let totalNotesInSong = Math.max(1, beatmap.length);
+        let percent = Math.round(weighted / totalNotesInSong);
+        
+        let missingNotes = beatmap.length - totalHits;
+        let totalErrors = missingNotes;
+        let isFullCombo = (totalErrors === 0 && beatmap.length > 0);
+        let allPerfect = (isFullCombo && perfects === beatmap.length);
+        activeEffects = { flames: false, pulsing: false, fireworks: false, fireworksTimer: 0, confettiTimer: 0, confettiGold: false };
+        goLasers.classList.add('hidden');
+        pulsingStars = [];
+        if (!win || misses >= 10) {
+            titleEl.innerText = "GAME OVER";
+            titleEl.style.background = "none"; titleEl.style.webkitTextFillColor = "#ff3333"; titleEl.classList.add('anim-grow');
+        } else {
+            if (allPerfect) { 
+                titleEl.innerText = "ABSOLUTE PERFEKTION";
+                titleEl.classList.add('anim-perfect');
+                spawnConfetti(200, true); 
+                activeEffects.flames = true; 
+                goLasers.classList.remove('hidden'); 
+            }
+            else if (isFullCombo) { 
+                titleEl.innerText = "EPISCH GESPIELT";
+                titleEl.classList.add('anim-win'); 
+                spawnConfetti(150, true); 
+                goLasers.classList.remove('hidden'); 
+                activeEffects.fireworks = true; 
+                activeEffects.fireworksTimer = 3.0;
+            }
+            else if (totalErrors <= 3) { 
+                titleEl.innerText = "DU ROCKST";
+                titleEl.classList.add('anim-win'); 
+                spawnConfetti(100, false); 
+                activeEffects.flames = true; 
+            }
+            else if (totalErrors <= 6) { 
+                titleEl.innerText = "SEHR GUT GESPIELT";
+                titleEl.classList.add('anim-win'); 
+                spawnConfetti(40, false); 
+                activeEffects.confettiTimer = 3.0; activeEffects.confettiGold = false; 
+            }
+            else if (totalErrors <= 9) { 
+                titleEl.innerText = "GUT GESPIELT";
+                titleEl.classList.add('anim-win'); 
+                activeEffects.pulsing = true;
+                for(let i=0; i<40; i++) {
+                    pulsingStars.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        size: Math.random() * 2 + 1,
+                        baseAlpha: Math.random() * 0.5 + 0.1,
+                        phase: Math.random() * Math.PI * 2,
+                        color: Math.random() > 0.5 ? '#ffffff' : '#00eeff'
+                    });
+                }
+            }
+            else { 
+                titleEl.innerText = "WEITER ÜBEN!";
+                titleEl.classList.add('anim-win'); 
+            }
+        }
+
+        document.getElementById('hit-ratio-display').innerText = `${totalHits} von ${beatmap.length} Noten getroffen`;
+        document.getElementById('accuracy-display').innerText = `Präzision: ${percent}%`;
+        document.getElementById('max-combo-display').innerText = `Längste Serie: ${maxCombo}x`;
+        
+        let hss = JSON.parse(localStorage.getItem('gemma_highscores') || "{}");
+        let hsKey = currentSongName + "_" + currentDifficulty;
+        let oldHighscore = hss[hsKey] ? hss[hsKey].score : 0;
+        document.getElementById('go-current-highscore').innerText = oldHighscore > 0 ? `(Bisheriger Highscore: ${oldHighscore})` : `(Noch kein Highscore)`;
+
+        document.getElementById('final-score').innerText = `Punkte: ${score}`;
+        
+        let stars = Math.max(0, 5 - (totalErrors * 0.5));
+        let starHtml = "";
+        for(let i=0; i<5; i++) {
+            if(i < Math.floor(stars)) {
+                starHtml += "<span style='color:#ffcc00; text-shadow: 0 0 10px rgba(255,204,0,0.8);'>★</span>";
+            } else if(i === Math.floor(stars) && stars % 1 !== 0) {
+                starHtml += "<span style='position: relative; display: inline-block;'><span style='color:#111; -webkit-text-stroke: 1px #666; text-shadow: none;'>★</span><span style='color:#ffcc00; position: absolute; left: 0; top: 0; width: 50%; overflow: hidden; text-shadow: 0 0 10px rgba(255,204,0,0.8);'>★</span></span>";
+            } else {
+                starHtml += "<span style='color:#111; -webkit-text-stroke: 1px #666; text-shadow: none;'>★</span>";
+            }
+        }
+        document.getElementById('star-rating').innerHTML = starHtml;
+        contentEl.classList.add('fade-in');
+        
+        let pName = playerNameInput ? playerNameInput.value.trim() : "Unbekannt";
+        
+        if (win && (!hss[hsKey] || score > hss[hsKey].score)) {
+            hss[hsKey] = { song: currentSongName, diff: currentDifficulty, score: score, player: pName || "Unbekannt" };
+            localStorage.setItem('gemma_highscores', JSON.stringify(hss));
+            document.getElementById('new-hs-msg').classList.remove('hidden');
+        } else {
+            document.getElementById('new-hs-msg').classList.add('hidden');
+        }
+    }
+
+    function gameLoop(time) {
+        if (!isPlaying && !isCountingDown && targetBoardOpacity === 1.0 && confetti.length === 0 && flames.length === 0 && fireworks.length === 0 && !activeEffects.flames && !activeEffects.pulsing && !activeEffects.fireworks && activeEffects.confettiTimer <= 0) return;
+        const dt = (time - lastTime) / 1000; lastTime = time;
+        if (boardOpacity > targetBoardOpacity) boardOpacity = Math.max(0, boardOpacity - dt * 1.5);
+        
+        if (damageFlashTimer > 0) damageFlashTimer -= dt;
+        if (isPlaying) {
+            let cTime = audioEle.currentTime;
+            beatmap.forEach(b => { if (!b.spawned && b.time <= cTime) { b.spawned = true; notes.push({ lane: b.lane, y: -50 }); spawnedNotes++; }});
+            for (let i = notes.length - 1; i >= 0; i--) {
+                notes[i].y += noteSpeed * dt;
+                if (notes[i].y > canvas.height + 50) { 
+                    combo = 0;
+                    multiplier = 1; misses++; totalMisses++; 
+                    notes.splice(i, 1); 
+                    damageFlashTimer = 0.2; 
+                    updateUI(); 
+                    if (misses >= 10) triggerGameOver(false);
+                }
+            }
+            if (audioEnded && notes.length === 0 && !isGameOver) triggerGameOver(true);
+        }
+
+        for (let i = floatingTexts.length - 1; i >= 0; i--) { floatingTexts[i].y -= dt * 60;
+            floatingTexts[i].life -= dt * 1.5; if(floatingTexts[i].life <= 0) floatingTexts.splice(i, 1);
+        }
+        
+        for (let i = confetti.length - 1; i >= 0; i--) { 
+            confetti[i].x += confetti[i].vx;
+            confetti[i].y += confetti[i].vy; 
+            confetti[i].vy += 0.2; 
+            confetti[i].life -= dt * 0.8; 
+            if(confetti[i].life <= 0) confetti.splice(i, 1);
+        }
+
+        if (activeEffects.confettiTimer > 0) {
+            activeEffects.confettiTimer -= dt;
+            if (Math.random() < 0.2) { 
+                let amount = activeEffects.confettiGold ? 15 : 10;
+                spawnConfetti(amount, activeEffects.confettiGold);
+            }
+        }
+
+        for (let i = flames.length - 1; i >= 0; i--) { flames[i].x += flames[i].vx;
+            flames[i].y += flames[i].vy; flames[i].size *= 0.94; flames[i].life -= dt * 2.0; if(flames[i].life <= 0 || flames[i].size < 1) flames.splice(i, 1);
+        }
+
+        if (activeEffects.flames && Math.random() < 0.3) {
+            flames.push({ x: 30 + (Math.random()-0.5)*20, y: canvas.height + 10, vx: (Math.random()-0.5)*2, vy: -(Math.random()*15 + 10), color: Math.random() > 0.5 ? '#ff9900' : '#ff3300', size: Math.random()*20 + 10, life: 1.5 });
+            flames.push({ x: canvas.width - 30 + (Math.random()-0.5)*20, y: canvas.height + 10, vx: (Math.random()-0.5)*2, vy: -(Math.random()*15 + 10), color: Math.random() > 0.5 ? '#ff9900' : '#ff3300', size: Math.random()*20 + 10, life: 1.5 });
+        }
+
+        if (activeEffects.fireworks) {
+            activeEffects.fireworksTimer -= dt;
+            if (activeEffects.fireworksTimer <= 0) {
+                activeEffects.fireworks = false;
+            } else if (Math.random() < 0.08) {
+                let fx = canvas.width * 0.1 + Math.random() * (canvas.width * 0.8);
+                let fy = canvas.height * 0.1 + Math.random() * (canvas.height * 0.4);
+                let fColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+                for(let j=0; j<30; j++) {
+                    let angle = Math.random() * Math.PI * 2;
+                    let speed = Math.random() * 5 + 1;
+                    fireworks.push({
+                        x: fx, y: fy,
+                        vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                        color: Math.random() > 0.5 ? fColor : '#ffffff', 
+                        size: Math.random() * 3 + 1.5, life: 1.0 + Math.random() * 0.5
+                    });
+                }
+            }
+        }
+        for (let i = fireworks.length - 1; i >= 0; i--) {
+            fireworks[i].x += fireworks[i].vx;
+            fireworks[i].y += fireworks[i].vy;
+            fireworks[i].vy += 0.05; 
+            fireworks[i].life -= dt * 1.5;
+            if (fireworks[i].life <= 0) fireworks.splice(i, 1);
+        }
+
+        draw(); 
+        
+        if(isPlaying || isCountingDown || confetti.length > 0 || flames.length > 0 || fireworks.length > 0 || activeEffects.flames || activeEffects.pulsing || activeEffects.fireworks || activeEffects.confettiTimer > 0 || damageFlashTimer > 0) {
+            currentLoopId = requestAnimationFrame(gameLoop);
+        }
+    }
+
+    function draw() {
+        ctx.globalAlpha = 1.0;
+        ctx.fillStyle = '#0a0a1a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        if (activeEffects.pulsing) {
+            pulsingStars.forEach(s => {
+                ctx.globalAlpha = s.baseAlpha + Math.sin((lastTime / 500) + s.phase) * 0.3;
+                if (ctx.globalAlpha < 0) ctx.globalAlpha = 0;
+                if (ctx.globalAlpha > 1) ctx.globalAlpha = 1;
+                ctx.fillStyle = s.color;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+        }
+
+        if (misses >= 7 && boardOpacity > 0) {
+            ctx.globalAlpha = Math.abs(Math.sin(lastTime / 500)) * 0.2 * boardOpacity;
+            ctx.fillStyle = '#330000'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = 1.0;
+        }
+
+        if (damageFlashTimer > 0) {
+            ctx.fillStyle = `rgba(255, 50, 50, ${damageFlashTimer * 1.5})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        const lw = trackWidth / LANES;
+        if (boardOpacity > 0) {
+            ctx.globalAlpha = boardOpacity;
+            for (let i = 0; i < LANES; i++) {
+                ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.04)';
+                ctx.fillRect(trackMargin + i * lw, 0, lw, canvas.height);
+                ctx.strokeStyle = COLORS[i]; ctx.lineWidth = 4;
+                ctx.globalAlpha = 0.5 * boardOpacity;
+                ctx.strokeRect(trackMargin + i * lw + 10, hitZoneY - 20, lw - 20, 40);
+                ctx.globalAlpha = boardOpacity;
+            }
+            
+            notes.forEach(n => { 
+                let lx = trackMargin + n.lane * lw;
+                ctx.fillStyle = COLORS[n.lane]; 
+                ctx.globalAlpha = 0.3 * boardOpacity; 
+                ctx.fillRect(lx + 10, n.y - 20, lw - 20, 40);
+                ctx.globalAlpha = boardOpacity;
+                ctx.fillRect(lx + 15, n.y - 15, lw - 30, 30);
+            });
+            ctx.globalAlpha = 1.0;
+        }
+
+        ctx.globalCompositeOperation = 'lighter';
+        flames.forEach(f => { ctx.fillStyle = f.color; ctx.globalAlpha = Math.max(0, f.life); ctx.beginPath(); ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2); ctx.fill(); });
+        fireworks.forEach(f => { ctx.fillStyle = f.color; ctx.globalAlpha = Math.max(0, Math.min(1, f.life)); ctx.beginPath(); ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2); ctx.fill(); });
+        ctx.globalCompositeOperation = 'source-over';
+
+        confetti.forEach(c => { ctx.fillStyle = c.color; ctx.globalAlpha = Math.max(0, Math.min(1, c.life)); ctx.fillRect(c.x, c.y, c.size, c.size); });
+        ctx.globalAlpha = 1.0;
+        ctx.font = '900 24px sans-serif'; ctx.textAlign = 'center';
+        for (let t of floatingTexts) { ctx.fillStyle = t.color;
+            ctx.globalAlpha = Math.max(0, t.life); ctx.fillText(t.text, t.x, t.y); }
+    }
+
+    function updateUI() {
+        document.getElementById('score-display').innerText = score;
+        const cd = document.getElementById('combo-display');
+        if (combo > 2) { cd.innerText = `${combo}x COMBO`; cd.style.color = combo > 15 ? '#ff00cc' : '#ffcc00'; } else { cd.innerText = ''; }
+        let lives = Math.max(0, 10 - misses);
+        healthBoxes.forEach((box, i) => {
+            if (i < lives) box.style.background = lives > 5 ? 'rgba(0, 200, 80, 0.6)' : (lives > 2 ? 'rgba(220, 150, 0, 0.6)' : 'rgba(220, 40, 40, 0.6)');
+            else box.style.background = 'transparent';
+        });
+    }
+
+    function hit(lane) {
+        if (!isPlaying || isGameOver || isCountingDown) return;
+        let target = notes.find(n => n.lane === lane && n.y > hitZoneY - 80 && n.y < hitZoneY + 60);
+        if (target) {
+            let dist = Math.abs(target.y - hitZoneY);
+            let rating = '', rColor = '';
+            if (dist < 40) { score += 100 * multiplier; perfects++; rating = 'PERFEKT!'; rColor = '#fff'; }
+            else if (dist < 75) { score += 50 * multiplier; greats++; rating = 'SEHR GUT!'; rColor = '#00eeff'; }
+            else { score += 10 * multiplier; oks++; rating = 'GUT!'; rColor = '#aaa'; }
+            
+            combo++;
+            if (combo > maxCombo) maxCombo = combo;
+            
+            if(combo % 10 === 0) multiplier++;
+            
+            // Leben zurückgeben alle 20 Hits (20, 40, 60, ...), aber NUR wenn Schaden vorliegt
+            if(combo > 0 && combo % 20 === 0 && misses > 0) {
+                misses--;
+                // Animation/Feedback erscheint nur, wenn wirklich geheilt wird
+                floatingTexts.push({ 
+                    x: trackMargin + lane * (trackWidth/LANES) + (trackWidth/LANES)/2, 
+                    y: target.y - 80, 
+                    text: '+1 LEBEN 💚', 
+                    life: 1.5, 
+                    color: '#00ff55' 
+                });
+            }
+            
+            floatingTexts.push({ x: trackMargin + lane * (trackWidth/LANES) + (trackWidth/LANES)/2, y: target.y - 30, text: rating, life: 1, color: rColor });
+            notes = notes.filter(n => n !== target);
+            updateUI();
+        } else {
+            combo = 0;
+            multiplier = 1; misses++; totalMisses++; 
+            damageFlashTimer = 0.2; 
+            updateUI(); 
+            if (misses >= 10) triggerGameOver(false);
+        }
+    }
+
+    canvas.addEventListener('touchstart', e => {
+        e.preventDefault(); if (!isPlaying || isPaused || isCountingDown) return;
+        let rect = canvas.getBoundingClientRect();
+        for (let i = 0; i < e.touches.length; i++) {
+            let x = e.touches[i].clientX - rect.left - trackMargin;
+            let y = e.touches[i].clientY - rect.top;
+            if (y > hitZoneY - 150) { 
+                let lane = Math.floor(x / (trackWidth/LANES));
+                if (lane >= 0 && lane < LANES) hit(lane);
+            }
+        }
+    }, { passive: false });
+    
+    canvas.addEventListener('mousedown', e => {
+        if (!isPlaying || isPaused || isCountingDown) return;
+        let x = e.clientX - canvas.getBoundingClientRect().left - trackMargin;
+        let y = e.clientY - canvas.getBoundingClientRect().top;
+        if (y > hitZoneY - 150) {
+            let lane = Math.floor(x / (trackWidth/LANES));
+            if (lane >= 0 && lane < LANES) hit(lane);
+        }
+    });
+
+    // CHALLENGE MODUS
+    const challengePool = [
+        "Spiele auf einem Bein 🦵", "Spiele nur mit einer Hand 🖐️", "Mache durchgehend Kniebeugen 🏋️", "Halte das Handy kopfüber 🙃",
+        "Jogge auf der Stelle 🏃‍♀️", "Wippe im Takt mit dem Kopf 🐻", "Versuche nicht zu blinzeln 👀", "Dreh dich beim Spielen langsam im Kreis 🎡",
+        "Steh auf den Zehenspitzen 🩰", "Beiß die Zähne zusammen & grinse breit 😁", "Planking! Auf die Unterarme gestützt spielen 🧱",
+        "Spiele in der Hocke (Ski-Fahrer) ⛷️", "Singe oder summe das Lied laut mit 🎤", "Kuscheltier zwischen die Knie klemmen 🧸",
+        "Balanciere ein Buch auf dem Kopf 📚", "Wandsitzen! Lehn dich an die Wall 🪑", "Nur Zeigefinger nutzen (Handy auf Tisch) ☝️",
+        "Steh mit überkreuzten Beinen da 🥨", "Ein Auge mit der Hand zuhalten 🏴‍ Scotch", "Wiege deinen Oberkörper von links nach rechts ⏳",
+        "Drehe deinen Oberkörper abwechselnd links/rechts 🔄", "Kreise mit einem freien Arm 🎡",
+        "Ständiges Wippen auf den Zehenspitzen 🆙", "Sitz-Fahrrad: Beine in die Luft & radeln 🚲", "Ellbogen auf Schulterhöhe nach außen halten 💪",
+        "Freien Arm kerzengerade zur Seite strecken 🧭", "Pinguin-Style: Arme fest an Rippen & watscheln 🐧", "Kreise mit einem Knie in der Luft 🌀",
+        "Trage eine Sonnenbrille (Geheimagentin) 😎"
+    ];
+    
+    const challengePopup = document.getElementById('challenge-popup');
+    const slotTextMini = document.getElementById('slot-text-mini');
+    const spinBtn = document.getElementById('spin-btn');
+    let isSpinningChallenge = false;
+
+    document.getElementById('challenge-modus-btn').onclick = () => {
+        document.getElementById('main-settings-screen').classList.add('hidden');
+        challengePopup.classList.remove('hidden');
+        spinChallenge();
+    };
+
+    function spinChallenge() {
+        if (isSpinningChallenge) return;
+        isSpinningChallenge = true;
+        slotTextMini.parentElement.classList.add('rolling-mini');
+        spinBtn.disabled = true;
+
+        let count = 0;
+        const interval = setInterval(() => {
+            slotTextMini.innerText = challengePool[Math.floor(Math.random() * challengePool.length)];
+            count++;
+            if (count > 15) {
+                clearInterval(interval);
+                slotTextMini.parentElement.classList.remove('rolling-mini');
+                slotTextMini.innerText = challengePool[Math.floor(Math.random() * challengePool.length)];
+                isSpinningChallenge = false;
+                spinBtn.disabled = false;
+            }
+        }, 80);
+    }
+
+    spinBtn.onclick = spinChallenge;
+    
+    window.closeChallengePopup = function() {
+        challengePopup.classList.add('hidden');
+        document.getElementById('main-settings-screen').classList.remove('hidden');
+    };
+    
+    document.getElementById('accept-challenge-btn').onclick = closeChallengePopup;
+
+    if ('serviceWorker' in navigator) {
+        const swCode = `
+            self.addEventListener('install', e => {
+                e.waitUntil(caches.open('gemma-beats-v5').then(c => c.addAll([location.href])));
+            });
+            self.addEventListener('fetch', e => {
+                e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+            });
+        `;
+        const blob = new Blob([swCode], {type: 'application/javascript'});
+        navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(err => console.log('PWA Fehler:', err));
+    }
+</script>
+</body>
+</html>
