@@ -1303,16 +1303,22 @@
         if (damageFlashTimer > 0) damageFlashTimer -= dt;
         if (isPlaying) {
             let cTime = audioEle.currentTime;
-            beatmap.forEach(b => { if (!b.spawned && b.time <= cTime) { b.spawned = true; notes.push({ lane: b.lane, y: -50 }); spawnedNotes++; }});
+            beatmap.forEach(b => { if (!b.spawned && b.time <= cTime) { b.spawned = true; notes.push({ lane: b.lane, y: -50, safe: false }); spawnedNotes++; }});
             for (let i = notes.length - 1; i >= 0; i--) {
                 notes[i].y += noteSpeed * dt;
                 if (notes[i].y > canvas.height + 50) { 
-                    combo = 0;
-                    multiplier = 1; misses++; totalMisses++; 
+                    // Note hat das Spielfeld verlassen
+                    if (!notes[i].safe) {
+                        // Nur bestrafen, wenn die Note NICHT neutralisiert wurde
+                        combo = 0;
+                        multiplier = 1; 
+                        misses++; 
+                        totalMisses++; 
+                        damageFlashTimer = 0.2; 
+                        updateUI(); 
+                        if (misses >= 10) triggerGameOver(false);
+                    }
                     notes.splice(i, 1); 
-                    damageFlashTimer = 0.2; 
-                    updateUI(); 
-                    if (misses >= 10) triggerGameOver(false);
                 }
             }
             if (audioEnded && notes.length === 0 && !isGameOver) triggerGameOver(true);
@@ -1461,29 +1467,24 @@
 
     function hit(lane) {
         if (!isPlaying || isGameOver || isCountingDown) return;
-        // Hitbox auf +/- 45 Pixel gestrafft
+        
+        // Aktuelle Note in der Hitbox suchen (+/- 45 Pixel)
         let target = notes.find(n => n.lane === lane && n.y > hitZoneY - 45 && n.y < hitZoneY + 45);
         
         if (target) {
             let dist = Math.abs(target.y - hitZoneY);
             let rating = '', rColor = '';
             
-            // Perfekt: +/- 20px
             if (dist < 20) { 
                 score += 100 * multiplier; perfects++; rating = 'PERFEKT!'; rColor = '#fff'; 
-            }
-            // Sehr Gut: +/- 30px
-            else if (dist < 30) { 
+            } else if (dist < 30) { 
                 score += 50 * multiplier; greats++; rating = 'SEHR GUT!'; rColor = '#00eeff'; 
-            }
-            // Gut: Bis +/- 45px
-            else { 
+            } else { 
                 score += 10 * multiplier; oks++; rating = 'GUT!'; rColor = '#aaa'; 
             }
             
             combo++;
             if (combo > maxCombo) maxCombo = combo;
-            
             if(combo % 10 === 0) multiplier++;
             
             if(combo > 0 && combo % 20 === 0 && misses > 0) {
@@ -1501,8 +1502,18 @@
             notes = notes.filter(n => n !== target);
             updateUI();
         } else {
+            // KEIN TREFFER: Prüfen ob eine Note "kurz davor" ist (Too Early)
+            let earlyNote = notes.find(n => n.lane === lane && n.y > hitZoneY - 150 && n.y <= hitZoneY - 45);
+            if (earlyNote) {
+                // Diese Note wird neutralisiert, damit sie unten keinen zweiten Fehler auslöst
+                earlyNote.safe = true;
+            }
+
+            // Strafe für den "falschen" Klick (Leerklick/Too Early)
             combo = 0;
-            multiplier = 1; misses++; totalMisses++; 
+            multiplier = 1; 
+            misses++; 
+            totalMisses++; 
             damageFlashTimer = 0.2; 
             updateUI(); 
             if (misses >= 10) triggerGameOver(false);
