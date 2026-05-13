@@ -127,16 +127,13 @@
             filter: drop-shadow(0 0 10px currentColor);
         }
 
-        /* --- Logo Styles: Sanftes Atmen & Farbwechsel-Glow --- */
         #main-logo {
             width: 260px;
             height: 260px;
             margin-bottom: 15px;
             object-fit: cover;
-            /* Maske für Verschmelzung beibehalten */
             -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 70%);
             mask-image: radial-gradient(circle, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 70%);
-            /* Zwei Animationen: Einmal sanftes Atmen, einmal der Farbwechsel-Glow */
             animation: logoBreath 4s infinite alternate ease-in-out, neonGlow 10s infinite linear;
             z-index: 51;
         }
@@ -430,7 +427,6 @@
         #app-exit-screen h1 { color: #fff; text-shadow: none; animation: none; background: none; -webkit-text-fill-color: #fff; margin-bottom: 20px; }
         #app-exit-screen p { color: #888; font-size: 1rem; margin-bottom: 30px; text-align: center; }
 
-        /* --- CHALLENGE CSS --- */
         #challenge-popup { position: absolute; width: 80%; max-width: 320px; background: rgba(15, 15, 25, 0.98); border: 2px solid #ffaa00; border-radius: 15px; padding: 15px; display: flex; flex-direction: column; align-items: center; z-index: 100; box-shadow: 0 0 30px rgba(0,0,0,0.8); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .slot-machine-mini { width: 100%; background: #000; border-radius: 8px; margin: 10px 0; padding: 12px; min-height: 60px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; overflow: hidden; }
         #slot-text-mini { color: #ffaa00; font-size: 0.95rem; font-weight: bold; text-align: center; text-transform: uppercase; }
@@ -480,7 +476,6 @@
         </div>
     </div>
 
-    <!-- START SCREEN -->
     <div id="start-screen" class="menu-overlay">
         <div class="watermark-notes">
             <span style="top: 15%; left: 10%; color: #ff00cc; transform: rotate(-20deg);">🎵</span>
@@ -489,7 +484,6 @@
             <span style="top: 25%; left: 80%; color: #ffaa00; transform: rotate(25deg);">🎶</span>
         </div>
         
-        <!-- Das Logo mit neuem Farbwechsel-Glow -->
         <img id="main-logo" src="icon.png" alt="Gemma Beats Logo">
 
         <input type="text" id="player-name" placeholder="Dein Name" maxlength="12">
@@ -512,7 +506,6 @@
         <button id="start-btn" disabled>PLAY</button>
     </div>
 
-    <!-- SAVED SONGS SCREEN -->
     <div id="saved-songs-screen" class="menu-overlay hidden">
         <h2>Deine Songs</h2>
         <input type="text" id="song-search-input" placeholder="Song suchen...">
@@ -520,7 +513,6 @@
         <button id="close-saved-songs-btn" style="background: #555;">Zurück</button>
     </div>
 
-    <!-- SETTINGS SCREEN -->
     <div id="main-settings-screen" class="menu-overlay hidden">
         <div class="watermark-notes">
             <span style="top: 20%; left: 80%; color: #ff00cc; transform: rotate(10deg);">🎵</span>
@@ -538,7 +530,6 @@
         <button onclick="closeMainSettings()" style="margin-top: 10px; background: #555;">Zurück</button>
     </div>
 
-    <!-- CHALLENGE POPUP -->
     <div id="challenge-popup" class="hidden">
         <h3 style="color: #ffaa00; margin: 0; font-size: 1.1rem; text-transform: uppercase;">Challenge!</h3>
         <div class="slot-machine-mini">
@@ -549,7 +540,6 @@
         <button onclick="closeChallengePopup()" style="background: transparent; border: 1px solid #555; color: #888; font-size: 0.8rem; margin-top: 5px; width: auto; padding: 4px 12px;">ABBRECHEN</button>
     </div>
 
-    <!-- HELP SCREEN -->
     <div id="help-screen" class="menu-overlay hidden">
         <h2>So geht's!</h2>
         <div class="help-text">
@@ -594,7 +584,6 @@
         <button id="help-back-btn" style="background: #555;">Alles klar!</button>
     </div>
 
-    <!-- PAUSE SCREEN -->
     <div id="pause-screen" class="menu-overlay hidden">
         <h1>Pausiert</h1>
         <button id="resume-btn">Weiter</button>
@@ -603,7 +592,6 @@
         <button id="pause-exit-btn" style="background: #ff3333;">Beenden</button>
     </div>
 
-    <!-- HIGHSCORE SCREEN -->
     <div id="highscore-screen" class="menu-overlay hidden">
         <h2 class="gold-pulse-title">Highscores</h2>
         <input type="text" id="hs-search-input" placeholder="Nach Song suchen...">
@@ -611,7 +599,6 @@
         <button id="hs-back-btn" style="background: #555;">Zurück</button>
     </div>
 
-    <!-- GAME OVER SCREEN -->
     <div id="game-over-screen" class="menu-overlay hidden">
         <h1 id="game-over-title"></h1>
         <div id="game-over-content" style="text-align: center; display: flex; flex-direction: column; align-items: center; width: 100%;">
@@ -627,7 +614,6 @@
         </div>
     </div>
 
-    <!-- CONFIRM DELETE SCREEN -->
     <div id="confirm-delete-screen" class="menu-overlay hidden" style="z-index: 60; background: rgba(0,0,0,0.85);">
         <div class="popup-box">
             <h2 style="font-size: 1.5rem; margin-bottom: 20px; color: #fff; text-shadow: none;">Willst du den Song wirklich löschen?</h2>
@@ -638,7 +624,6 @@
         </div>
     </div>
 
-    <!-- APP EXIT SCREEN -->
     <div id="app-exit-screen" class="menu-overlay hidden">
         <h1>Tschüss!</h1>
         <p>Du kannst diesen Tab jetzt schließen.</p>
@@ -834,7 +819,8 @@
     function resize() {
         const container = document.getElementById('game-container');
         canvas.width = container.clientWidth; canvas.height = container.clientHeight;
-        hitZoneY = canvas.height - 80; noteSpeed = (hitZoneY + 50) / 1.5;
+        hitZoneY = canvas.height - 125; 
+        noteSpeed = (hitZoneY + 50) / 1.5;
         trackMargin = 20; trackWidth = canvas.width - (trackMargin * 2);
     }
     window.addEventListener('resize', resize);
@@ -1430,7 +1416,10 @@
             for (let i = 0; i < LANES; i++) {
                 ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.04)';
                 ctx.fillRect(trackMargin + i * lw, 0, lw, canvas.height);
-                ctx.strokeStyle = COLORS[i]; ctx.lineWidth = 4;
+                
+                // --- ZIEL-KÄSTCHEN (HIT-ZONE) ---
+                ctx.strokeStyle = COLORS[i];
+                ctx.lineWidth = 4;
                 ctx.globalAlpha = 0.5 * boardOpacity;
                 ctx.strokeRect(trackMargin + i * lw + 10, hitZoneY - 20, lw - 20, 40);
                 ctx.globalAlpha = boardOpacity;
@@ -1472,13 +1461,25 @@
 
     function hit(lane) {
         if (!isPlaying || isGameOver || isCountingDown) return;
-        let target = notes.find(n => n.lane === lane && n.y > hitZoneY - 80 && n.y < hitZoneY + 60);
+        // Hitbox auf +/- 45 Pixel gestrafft
+        let target = notes.find(n => n.lane === lane && n.y > hitZoneY - 45 && n.y < hitZoneY + 45);
+        
         if (target) {
             let dist = Math.abs(target.y - hitZoneY);
             let rating = '', rColor = '';
-            if (dist < 40) { score += 100 * multiplier; perfects++; rating = 'PERFEKT!'; rColor = '#fff'; }
-            else if (dist < 75) { score += 50 * multiplier; greats++; rating = 'SEHR GUT!'; rColor = '#00eeff'; }
-            else { score += 10 * multiplier; oks++; rating = 'GUT!'; rColor = '#aaa'; }
+            
+            // Perfekt: +/- 20px
+            if (dist < 20) { 
+                score += 100 * multiplier; perfects++; rating = 'PERFEKT!'; rColor = '#fff'; 
+            }
+            // Sehr Gut: +/- 30px
+            else if (dist < 30) { 
+                score += 50 * multiplier; greats++; rating = 'SEHR GUT!'; rColor = '#00eeff'; 
+            }
+            // Gut: Bis +/- 45px
+            else { 
+                score += 10 * multiplier; oks++; rating = 'GUT!'; rColor = '#aaa'; 
+            }
             
             combo++;
             if (combo > maxCombo) maxCombo = combo;
@@ -1537,7 +1538,7 @@
         "Steh auf den Zehenspitzen 🩰", "Beiß die Zähne zusammen & grinse breit 😁", "Planking! Auf die Unterarme gestützt spielen 🧱",
         "Spiele in der Hocke (Ski-Fahrer) ⛷️", "Singe oder summe das Lied laut mit 🎤", "Kuscheltier zwischen die Knie klemmen 🧸",
         "Balanciere ein Buch auf dem Kopf 📚", "Wandsitzen! Lehn dich an die Wall 🪑", "Nur Zeigefinger nutzen (Handy auf Tisch) ☝️",
-        "Steh mit überkreuzten Beinen da 🥨", "Ein Auge mit der Hand zuhalten 🏴‍ Scotch", "Wiege deinen Oberkörper von links nach rechts ⏳",
+        "Steh mit überkreuzten Beinen da 🥨", "Ein Auge mit der Hand zuhalten 🏴‍", "Wiege deinen Oberkörper von links nach rechts ⏳",
         "Drehe deinen Oberkörper abwechselnd links/rechts 🔄", "Kreise mit einem freien Arm 🎡",
         "Ständiges Wippen auf den Zehenspitzen 🆙", "Sitz-Fahrrad: Beine in die Luft & radeln 🚲", "Ellbogen auf Schulterhöhe nach außen halten 💪",
         "Freien Arm kerzengerade zur Seite strecken 🧭", "Pinguin-Style: Arme fest an Rippen & watscheln 🐧", "Kreise mit einem Knie in der Luft 🌀",
