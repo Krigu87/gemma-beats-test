@@ -669,6 +669,7 @@
     let score = 0, combo = 0, maxCombo = 0, multiplier = 1, misses = 0, totalMisses = 0, spawnedNotes = 0;
     let perfects = 0, greats = 0, oks = 0;
     let notes = [], floatingTexts = [], confetti = [], flames = [], fireworks = [], pulsingStars = [], beatmap = [];
+    let laneGlowTimers = [0, 0, 0, 0];
     let audioCtx, audioEle, delayNode, audioFileUrl, currentSongName = "";
     const LANES = 4, COLORS = ['#ff00cc', '#00eeff', '#00ff55', '#ffaa00'];
     let lastTime = 0, hitZoneY = 0, noteSpeed = 0, trackWidth = 0, trackMargin = 20, boardOpacity = 1.0, targetBoardOpacity = 1.0;
@@ -895,6 +896,7 @@
         isPaused = false; audioEnded = false;
         notes = []; confetti = []; flames = []; fireworks = [];
         pulsingStars = []; floatingTexts = [];
+        laneGlowTimers = [0, 0, 0, 0];
         activeEffects = { flames: false, pulsing: false, fireworks: false, fireworksTimer: 0, confettiTimer: 0, confettiGold: false };
         goLasers.classList.add('hidden');
         damageFlashTimer = 0;
@@ -1301,15 +1303,18 @@
         if (boardOpacity > targetBoardOpacity) boardOpacity = Math.max(0, boardOpacity - dt * 1.5);
         
         if (damageFlashTimer > 0) damageFlashTimer -= dt;
+        
+        for(let i=0; i<4; i++) {
+            if(laneGlowTimers[i] > 0) laneGlowTimers[i] -= dt;
+        }
+
         if (isPlaying) {
             let cTime = audioEle.currentTime;
             beatmap.forEach(b => { if (!b.spawned && b.time <= cTime) { b.spawned = true; notes.push({ lane: b.lane, y: -50, safe: false }); spawnedNotes++; }});
             for (let i = notes.length - 1; i >= 0; i--) {
                 notes[i].y += noteSpeed * dt;
                 if (notes[i].y > canvas.height + 50) { 
-                    // Note hat das Spielfeld verlassen
                     if (!notes[i].safe) {
-                        // Nur bestrafen, wenn die Note NICHT neutralisiert wurde
                         combo = 0;
                         multiplier = 1; 
                         misses++; 
@@ -1383,7 +1388,7 @@
 
         draw(); 
         
-        if(isPlaying || isCountingDown || confetti.length > 0 || flames.length > 0 || fireworks.length > 0 || activeEffects.flames || activeEffects.pulsing || activeEffects.fireworks || activeEffects.confettiTimer > 0 || damageFlashTimer > 0) {
+        if(isPlaying || isCountingDown || confetti.length > 0 || flames.length > 0 || fireworks.length > 0 || activeEffects.flames || activeEffects.pulsing || activeEffects.fireworks || activeEffects.confettiTimer > 0 || damageFlashTimer > 0 || laneGlowTimers.some(t => t > 0)) {
             currentLoopId = requestAnimationFrame(gameLoop);
         }
     }
@@ -1423,11 +1428,18 @@
                 ctx.fillStyle = i % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.04)';
                 ctx.fillRect(trackMargin + i * lw, 0, lw, canvas.height);
                 
-                // --- ZIEL-KÄSTCHEN (HIT-ZONE) ---
+                let x = trackMargin + i * lw + 10;
+                let w = lw - 20;
+                
+                if (laneGlowTimers[i] > 0) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, ' + (laneGlowTimers[i] * 5) + ')';
+                    ctx.fillRect(x, hitZoneY - 20, w, 40);
+                }
+
                 ctx.strokeStyle = COLORS[i];
-                ctx.lineWidth = 4;
+                ctx.lineWidth = laneGlowTimers[i] > 0 ? 6 : 4;
                 ctx.globalAlpha = 0.5 * boardOpacity;
-                ctx.strokeRect(trackMargin + i * lw + 10, hitZoneY - 20, lw - 20, 40);
+                ctx.strokeRect(x, hitZoneY - 20, w, 40);
                 ctx.globalAlpha = boardOpacity;
             }
             
@@ -1468,18 +1480,20 @@
     function hit(lane) {
         if (!isPlaying || isGameOver || isCountingDown) return;
         
-        // Aktuelle Note in der Hitbox suchen (+/- 45 Pixel)
-        let target = notes.find(n => n.lane === lane && n.y > hitZoneY - 45 && n.y < hitZoneY + 45);
+        // --- AKTUALISIERTE HITBOX: +/- 50 PIXEL ---
+        let target = notes.find(n => n.lane === lane && n.y > hitZoneY - 50 && n.y < hitZoneY + 50);
         
         if (target) {
+            laneGlowTimers[lane] = 0.15;
             let dist = Math.abs(target.y - hitZoneY);
             let rating = '', rColor = '';
             
-            if (dist < 20) { 
+            // --- NEUE SCHWELLENWERTE ---
+            if (dist < 25) { // Perfekt: +/- 25px
                 score += 100 * multiplier; perfects++; rating = 'PERFEKT!'; rColor = '#fff'; 
-            } else if (dist < 30) { 
+            } else if (dist < 35) { // Sehr Gut: +/- 35px
                 score += 50 * multiplier; greats++; rating = 'SEHR GUT!'; rColor = '#00eeff'; 
-            } else { 
+            } else { // Gut: Bis +/- 50px
                 score += 10 * multiplier; oks++; rating = 'GUT!'; rColor = '#aaa'; 
             }
             
@@ -1502,14 +1516,12 @@
             notes = notes.filter(n => n !== target);
             updateUI();
         } else {
-            // KEIN TREFFER: Prüfen ob eine Note "kurz davor" ist (Too Early)
-            let earlyNote = notes.find(n => n.lane === lane && n.y > hitZoneY - 150 && n.y <= hitZoneY - 45);
+            // "TOO EARLY" CHECK: Basierend auf der neuen Hitbox-Grenze (-50)
+            let earlyNote = notes.find(n => n.lane === lane && n.y > hitZoneY - 150 && n.y <= hitZoneY - 50);
             if (earlyNote) {
-                // Diese Note wird neutralisiert, damit sie unten keinen zweiten Fehler auslöst
                 earlyNote.safe = true;
             }
 
-            // Strafe für den "falschen" Klick (Leerklick/Too Early)
             combo = 0;
             multiplier = 1; 
             misses++; 
