@@ -555,17 +555,18 @@
             <p>Triffst du <strong>20 Noten fehlerfrei</strong> hintereinander, erhältst du ein Leben im Balken zurück.</p>
 
             <h3>⭐ Sterne-Bewertung</h3>
-            <p>Am Ende wird abgerechnet (nur echte verpasste Noten zählen, ohne Leerklicks):<br>
-            <strong style="color: #ffd700; text-shadow: 0 0 5px #ffaa00;">🌟 5 Sterne:</strong> 0 Fehler & <span class="white-bold">100% perfekt getroffen</span> (Absolute Perfektion)<br>
-            <strong>5 Sterne:</strong> 0 Fehler (Episch gespielt)<br>
-            <strong>4 - 4.5 Sterne:</strong> 1-3 Fehler (Du rockst)<br>
-            <strong>3 - 3.5 Sterne:</strong> 4-6 Fehler (Sehr gut gespielt)<br>
-            <strong>2 - 2.5 Sterne:</strong> 7-9 Fehler (Gut gespielt)<br>
-            <strong>Unter 2:</strong> Weiter üben!</p>
+            <p>Am Ende wird abgerechnet (nur echte verpasste Noten zählen, ohne Leerklicks):<br><br>
+            <strong style="color: #00ff55;">Absolute Perfektion:</strong> <span style="color: #ffd700; text-shadow: 0 0 5px #ffaa00;">🌟</span> 5.0 (0 Fehler & 90-100% perfekt getroffen)<br><br>
+            <strong style="color: #00ff55;">Episch gespielt:</strong> ⭐ 5.0 (0 Fehler)<br><br>
+            <strong style="color: #00ff55;">Du rockst:</strong> ⭐ 4.0 - 4.5 (1 - 5 Fehler)<br><br>
+            <strong style="color: #00ff55;">Sehr gut gespielt:</strong> ⭐ 3.0 - 3.5 (6 - 10 Fehler)<br><br>
+            <strong style="color: #00ff55;">Gut gespielt:</strong> ⭐ 2.0 - 2.5 (11 - 15 Fehler)<br><br>
+            <strong style="color: #00ff55;">Weiter üben!:</strong> ⭐ 1.0 - 1.5 (16 - 20 Fehler)</p>
 
             <h3>🚥 Schwierigkeit</h3>
-            <p><strong>Leicht:</strong> Nimmt nur die markantesten Bässe.
-            <strong>Mittel:</strong> Normaler Takt. <br><strong>Schwer:</strong> Reagiert auf feinere Beats. Die Noten fallen exakt gleich schnell wie auf Leicht, aber es kommen deutlich mehr Noten in kürzeren Abständen!</p>
+            <p><strong>Leicht:</strong> Nimmt nur die markantesten Bässe.<br><br>
+            <strong>Mittel:</strong> Normaler Takt.<br><br>
+            <strong>Schwer:</strong> Reagiert auf feinere Beats. Die Noten fallen exakt gleich schnell wie auf Leicht, aber es kommen deutlich mehr Noten in kürzeren Abständen!</p>
 
             <h3>🎰 Challenge Modus</h3>
             <p>Zieh im Einstellungsmenü am Hebel, um eine zufällige Aufgabe zu erhalten (z.B. auf einem Bein spielen oder das Handy kopfüber halten).</p>
@@ -820,8 +821,8 @@
     function resize() {
         const container = document.getElementById('game-container');
         canvas.width = container.clientWidth; canvas.height = container.clientHeight;
-        // Hitbox und Kästchen um 10 Pixel nach oben verschoben: 135px statt 125px vom unteren Rand
-        hitZoneY = canvas.height - 135; 
+        // Hitbox und Kästchen um weitere 10 Pixel nach oben verschoben: 145px statt 135px vom unteren Rand
+        hitZoneY = canvas.height - 145; 
         noteSpeed = (hitZoneY + 50) / 1.5;
         trackMargin = 20; trackWidth = canvas.width - (trackMargin * 2);
     }
@@ -1203,13 +1204,14 @@
         let totalNotesInSong = Math.max(1, beatmap.length);
         let percent = Math.round(weighted / totalNotesInSong);
         
-        let missingNotes = beatmap.length - totalHits;
-        let totalErrors = missingNotes;
+        let totalErrors = beatmap.length - totalHits;
         let isFullCombo = (totalErrors === 0 && beatmap.length > 0);
-        let allPerfect = (isFullCombo && perfects === beatmap.length);
+        let allPerfect = (isFullCombo && beatmap.length > 0 && percent >= 90);
+        
         activeEffects = { flames: false, pulsing: false, fireworks: false, fireworksTimer: 0, confettiTimer: 0, confettiGold: false };
         goLasers.classList.add('hidden');
         pulsingStars = [];
+        
         if (!win || misses >= 10) {
             titleEl.innerText = "GAME OVER";
             titleEl.style.background = "none"; titleEl.style.webkitTextFillColor = "#ff3333"; titleEl.classList.add('anim-grow');
@@ -1229,19 +1231,19 @@
                 activeEffects.fireworks = true; 
                 activeEffects.fireworksTimer = 3.0;
             }
-            else if (totalErrors <= 3) { 
+            else if (totalErrors <= 5) { 
                 titleEl.innerText = "DU ROCKST";
                 titleEl.classList.add('anim-win'); 
                 spawnConfetti(100, false); 
                 activeEffects.flames = true; 
             }
-            else if (totalErrors <= 6) { 
+            else if (totalErrors <= 10) { 
                 titleEl.innerText = "SEHR GUT GESPIELT";
                 titleEl.classList.add('anim-win'); 
                 spawnConfetti(40, false); 
                 activeEffects.confettiTimer = 3.0; activeEffects.confettiGold = false; 
             }
-            else if (totalErrors <= 9) { 
+            else if (totalErrors <= 15) { 
                 titleEl.innerText = "GUT GESPIELT";
                 titleEl.classList.add('anim-win'); 
                 activeEffects.pulsing = true;
@@ -1263,7 +1265,7 @@
         }
 
         document.getElementById('hit-ratio-display').innerText = `${totalHits} von ${beatmap.length} Noten getroffen`;
-        document.getElementById('accuracy-display').innerText = `Präzision: ${percent}%`;
+        document.getElementById('accuracy-display').innerText = `Davon perfekt: ${percent}%`;
         document.getElementById('max-combo-display').innerText = `Längste Serie: ${maxCombo}x`;
         
         let hss = JSON.parse(localStorage.getItem('gemma_highscores') || "{}");
@@ -1273,8 +1275,34 @@
 
         document.getElementById('final-score').innerText = `Punkte: ${score}`;
         
-        let stars = Math.max(0, 5 - (totalErrors * 0.5));
+        // Neues Sterne-Berechnungssystem exakt nach Tabelle
+        let stars = 0;
         let starHtml = "";
+        
+        if (win) {
+            if (totalErrors === 0) {
+                stars = 5.0;
+            } else if (totalErrors <= 2) {
+                stars = 4.5;
+            } else if (totalErrors <= 5) {
+                stars = 4.0;
+            } else if (totalErrors <= 7) {
+                stars = 3.5;
+            } else if (totalErrors <= 10) {
+                stars = 3.0;
+            } else if (totalErrors <= 12) {
+                stars = 2.5;
+            } else if (totalErrors <= 15) {
+                stars = 2.0;
+            } else if (totalErrors <= 17) {
+                stars = 1.5;
+            } else if (totalErrors <= 20) {
+                stars = 1.0;
+            } else {
+                stars = 0.5;
+            }
+        }
+
         for(let i=0; i<5; i++) {
             if(i < Math.floor(stars)) {
                 starHtml += "<span style='color:#ffcc00; text-shadow: 0 0 10px rgba(255,204,0,0.8);'>★</span>";
@@ -1284,6 +1312,7 @@
                 starHtml += "<span style='color:#111; -webkit-text-stroke: 1px #666; text-shadow: none;'>★</span>";
             }
         }
+        
         document.getElementById('star-rating').innerHTML = starHtml;
         contentEl.classList.add('fade-in');
         
@@ -1481,15 +1510,15 @@
     function hit(lane) {
         if (!isPlaying || isGameOver || isCountingDown) return;
         
-        // --- AKTUALISIERTE HITBOX: +/- 55 PIXEL (Gut-Bereich um 5px erhöht) ---
-        let target = notes.find(n => n.lane === lane && n.y > hitZoneY - 55 && n.y < hitZoneY + 55);
+        // --- AKTUALISIERTE HITBOX: +/- 50 PIXEL ---
+        let target = notes.find(n => n.lane === lane && n.y > hitZoneY - 50 && n.y < hitZoneY + 50);
         
         if (target) {
             laneGlowTimers[lane] = 0.15;
             let dist = Math.abs(target.y - hitZoneY);
             let rating = '', rColor = '';
             
-            // --- SCHWELLENWERTE (Perfekt & Sehr Gut wie zuvor, Gut nun bis 55) ---
+            // --- SCHWELLENWERTE (Perfekt 25, Sehr Gut 35, Gut nun bis 50) ---
             if (dist < 25) { 
                 score += 100 * multiplier; perfects++; rating = 'PERFEKT!'; rColor = '#fff'; 
             } else if (dist < 35) { 
@@ -1517,8 +1546,8 @@
             notes = notes.filter(n => n !== target);
             updateUI();
         } else {
-            // "TOO EARLY" CHECK: Basierend auf der neuen Hitbox-Grenze (-55)
-            let earlyNote = notes.find(n => n.lane === lane && n.y > hitZoneY - 150 && n.y <= hitZoneY - 55);
+            // "TOO EARLY" CHECK: Basierend auf der neuen Hitbox-Grenze (-50)
+            let earlyNote = notes.find(n => n.lane === lane && n.y > hitZoneY - 150 && n.y <= hitZoneY - 50);
             if (earlyNote) {
                 earlyNote.safe = true;
             }
