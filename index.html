@@ -820,7 +820,8 @@
     function resize() {
         const container = document.getElementById('game-container');
         canvas.width = container.clientWidth; canvas.height = container.clientHeight;
-        hitZoneY = canvas.height - 125; 
+        // Hitbox und Kästchen um 10 Pixel nach oben verschoben: 135px statt 125px vom unteren Rand
+        hitZoneY = canvas.height - 135; 
         noteSpeed = (hitZoneY + 50) / 1.5;
         trackMargin = 20; trackWidth = canvas.width - (trackMargin * 2);
     }
@@ -1480,20 +1481,20 @@
     function hit(lane) {
         if (!isPlaying || isGameOver || isCountingDown) return;
         
-        // --- AKTUALISIERTE HITBOX: +/- 50 PIXEL ---
-        let target = notes.find(n => n.lane === lane && n.y > hitZoneY - 50 && n.y < hitZoneY + 50);
+        // --- AKTUALISIERTE HITBOX: +/- 55 PIXEL (Gut-Bereich um 5px erhöht) ---
+        let target = notes.find(n => n.lane === lane && n.y > hitZoneY - 55 && n.y < hitZoneY + 55);
         
         if (target) {
             laneGlowTimers[lane] = 0.15;
             let dist = Math.abs(target.y - hitZoneY);
             let rating = '', rColor = '';
             
-            // --- NEUE SCHWELLENWERTE ---
-            if (dist < 25) { // Perfekt: +/- 25px
+            // --- SCHWELLENWERTE (Perfekt & Sehr Gut wie zuvor, Gut nun bis 55) ---
+            if (dist < 25) { 
                 score += 100 * multiplier; perfects++; rating = 'PERFEKT!'; rColor = '#fff'; 
-            } else if (dist < 35) { // Sehr Gut: +/- 35px
+            } else if (dist < 35) { 
                 score += 50 * multiplier; greats++; rating = 'SEHR GUT!'; rColor = '#00eeff'; 
-            } else { // Gut: Bis +/- 50px
+            } else { 
                 score += 10 * multiplier; oks++; rating = 'GUT!'; rColor = '#aaa'; 
             }
             
@@ -1516,8 +1517,8 @@
             notes = notes.filter(n => n !== target);
             updateUI();
         } else {
-            // "TOO EARLY" CHECK: Basierend auf der neuen Hitbox-Grenze (-50)
-            let earlyNote = notes.find(n => n.lane === lane && n.y > hitZoneY - 150 && n.y <= hitZoneY - 50);
+            // "TOO EARLY" CHECK: Basierend auf der neuen Hitbox-Grenze (-55)
+            let earlyNote = notes.find(n => n.lane === lane && n.y > hitZoneY - 150 && n.y <= hitZoneY - 55);
             if (earlyNote) {
                 earlyNote.safe = true;
             }
