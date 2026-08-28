@@ -2,7 +2,7 @@
 Dein mobiles Rhythmus-Spiel – spiele zu deiner eigenen Musik!
 
 ### 🚀 Direkt im Browser spielen
-👉 https://github.com/Krigu87/gemma-beats-test
+👉 https://krigu87.github.io/gemma-beats-test/
 
 ---
 
