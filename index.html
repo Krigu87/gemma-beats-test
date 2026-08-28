@@ -63,8 +63,7 @@
             transition: background-color 0.2s;
             border-bottom: 2px solid rgba(0,0,0,0.7);
         }
-        .health-box:first-child { border-bottom: none;
-        }
+        .health-box:first-child { border-bottom: none; }
         
         #ui-layer {
             position: absolute;
@@ -102,8 +101,7 @@
             background: rgba(255,255,255,0.05);
         }
 
-        .icon-btn:active { transform: scale(0.9); opacity: 1.0;
-        }
+        .icon-btn:active { transform: scale(0.9); opacity: 1.0; }
 
         .menu-overlay {
             position: absolute;
@@ -113,8 +111,7 @@
             align-items: center; 
             z-index: 50; pointer-events: auto;
         }
-        .hidden { display: none !important;
-        }
+        .hidden { display: none !important; }
 
         .watermark-notes {
             position: absolute;
@@ -151,21 +148,26 @@
             100% { filter: drop-shadow(0 0 15px #ff00cc); }
         }
 
-        #game-over-content { display: flex;
-            flex-direction: column; align-items: center; width: 100%; z-index: 51; text-align: center; }
+        #game-over-content { 
+            display: flex;
+            flex-direction: column; align-items: center; width: 100%; z-index: 51; text-align: center; 
+        }
 
-        @keyframes gameOverGrow { 0% { transform: translateY(100px) scale(0.6);
-            opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1;
-            } }
+        @keyframes gameOverGrow { 
+            0% { transform: translateY(100px) scale(0.6); opacity: 0; } 
+            100% { transform: translateY(0) scale(1); opacity: 1; } 
+        }
         .anim-grow {
             animation: gameOverGrow 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
             font-size: 2.2rem !important; text-align: center !important;
             line-height: 1.2 !important; margin-bottom: 20px !important;
         }
         
-        h2 { color: #00eeff;
+        h2 { 
+            color: #00eeff;
             margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; text-align: center; text-shadow: 0 0 10px rgba(0,238,255,0.3);
-            z-index: 2;}
+            z-index: 2;
+        }
 
         .gold-pulse-title {
             color: #ffd700;
@@ -178,8 +180,10 @@
             to { filter: drop-shadow(0 0 15px rgba(255, 215, 0, 1)); transform: scale(1.05); }
         }
 
-        #bg-fx { position: absolute; top: 0; left: 0; width: 100%;
-            height: 100%; pointer-events: none; z-index: 45; overflow: hidden; }
+        #bg-fx { 
+            position: absolute; top: 0; left: 0; width: 100%;
+            height: 100%; pointer-events: none; z-index: 45; overflow: hidden; 
+        }
         
         .spotlight {
             position: absolute;
@@ -187,19 +191,20 @@
             transform-origin: top center; border-radius: 100px; mix-blend-mode: screen; opacity: 0.8;
             transition: opacity 1.5s ease;
         }
-        .spot1 { left: 25%;
-            background: linear-gradient(to bottom, rgba(255,0,204,0.9) 0%, transparent 80%); animation: sweep1 4s infinite alternate ease-in-out, colorShift 8s infinite linear;
+        .spot1 { 
+            left: 25%;
+            background: linear-gradient(to bottom, rgba(255,0,204,0.9) 0%, transparent 80%); 
+            animation: sweep1 4s infinite alternate ease-in-out, colorShift 8s infinite linear;
         }
-        .spot2 { right: 25%; background: linear-gradient(to bottom, rgba(0,238,255,0.9) 0%, transparent 80%);
+        .spot2 { 
+            right: 25%; 
+            background: linear-gradient(to bottom, rgba(0,238,255,0.9) 0%, transparent 80%);
             animation: sweep2 5s infinite alternate-reverse ease-in-out, colorShift 12s infinite linear;
         }
 
-        @keyframes sweep1 { 0% { transform: rotate(20deg); } 100% { transform: rotate(70deg);
-            } }
-        @keyframes sweep2 { 0% { transform: rotate(-20deg);
-            } 100% { transform: rotate(-70deg); } }
-        @keyframes colorShift { 0% { filter: blur(25px) hue-rotate(0deg);
-            } 100% { filter: blur(25px) hue-rotate(360deg); } }
+        @keyframes sweep1 { 0% { transform: rotate(20deg); } 100% { transform: rotate(70deg); } }
+        @keyframes sweep2 { 0% { transform: rotate(-20deg); } 100% { transform: rotate(-70deg); } }
+        @keyframes colorShift { 0% { filter: blur(25px) hue-rotate(0deg); } 100% { filter: blur(25px) hue-rotate(360deg); } }
 
         .fog-container {
             position: absolute;
@@ -207,44 +212,46 @@
             pointer-events: none; overflow: hidden; opacity: 0.7; mix-blend-mode: screen;
             transition: opacity 1.5s ease;
         }
-        .fog { position: absolute; bottom: -20vh; width: 150%; height: 50vh; filter: blur(50px);
+        .fog { position: absolute; bottom: -20vh; width: 150%; height: 50vh; filter: blur(50px); }
+        .fog1 { 
+            background: radial-gradient(ellipse at center, rgba(255,0,204,0.6) 0%, transparent 70%);
+            animation: drift1 12s infinite alternate ease-in-out; 
         }
-        .fog1 { background: radial-gradient(ellipse at center, rgba(255,0,204,0.6) 0%, transparent 70%);
-            animation: drift1 12s infinite alternate ease-in-out; }
-        .fog2 { background: radial-gradient(ellipse at center, rgba(0,238,255,0.6) 0%, transparent 70%);
-            animation: drift2 16s infinite alternate-reverse ease-in-out; }
-
-        @keyframes drift1 { 0% { transform: translateX(-10%);
-            } 100% { transform: translateX(10%); } }
-        @keyframes drift2 { 0% { transform: translateX(0%);
-            } 100% { transform: translateX(-20%); } }
-
-        body.hide-lights .spotlight, body.hide-lights .fog-container { display: none !important;
+        .fog2 { 
+            background: radial-gradient(ellipse at center, rgba(0,238,255,0.6) 0%, transparent 70%);
+            animation: drift2 16s infinite alternate-reverse ease-in-out; 
         }
 
-        #go-lasers { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 46; overflow: hidden; }
+        @keyframes drift1 { 0% { transform: translateX(-10%); } 100% { transform: translateX(10%); } }
+        @keyframes drift2 { 0% { transform: translateX(0%); } 100% { transform: translateX(-20%); } }
+
+        body.hide-lights .spotlight, body.hide-lights .fog-container { display: none !important; }
+
+        #go-lasers { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 46; overflow: hidden; 
+        }
         .go-laser {
             position: absolute;
             bottom: -10vh; width: 6px; height: 150vh;
             transform-origin: bottom center; mix-blend-mode: screen; border-radius: 10px;
         }
-        .gl-1 { left: 10%; background: linear-gradient(to top, #fff, rgba(0,238,255,0));
+        .gl-1 { 
+            left: 10%; background: linear-gradient(to top, #fff, rgba(0,238,255,0));
             box-shadow: 0 0 20px #00eeff; animation: gSweep1 2.5s infinite alternate ease-in-out;
         }
-        .gl-2 { right: 10%; background: linear-gradient(to top, #fff, rgba(255,0,204,0));
+        .gl-2 { 
+            right: 10%; background: linear-gradient(to top, #fff, rgba(255,0,204,0));
             box-shadow: 0 0 20px #ff00cc; animation: gSweep2 3s infinite alternate ease-in-out;
         }
-        .gl-3 { left: 50%; background: linear-gradient(to top, #fff, rgba(0,255,85,0));
+        .gl-3 { 
+            left: 50%; background: linear-gradient(to top, #fff, rgba(0,255,85,0));
             box-shadow: 0 0 20px #00ff55; animation: gSweep3 2s infinite alternate ease-in-out;
         }
         
-        @keyframes gSweep1 { 0% { transform: rotate(-50deg);
-            } 100% { transform: rotate(20deg); } }
-        @keyframes gSweep2 { 0% { transform: rotate(50deg);
-            } 100% { transform: rotate(-20deg); } }
-        @keyframes gSweep3 { 0% { transform: rotate(-30deg);
-            } 100% { transform: rotate(30deg); } }
+        @keyframes gSweep1 { 0% { transform: rotate(-50deg); } 100% { transform: rotate(20deg); } }
+        @keyframes gSweep2 { 0% { transform: rotate(50deg); } 100% { transform: rotate(-20deg); } }
+        @keyframes gSweep3 { 0% { transform: rotate(-30deg); } 100% { transform: rotate(30deg); } }
 
         input[type="text"] {
             -webkit-user-select: auto !important;
@@ -268,14 +275,16 @@
             width: 80%;
             max-width: 250px; z-index: 51;
         }
-        button:active { transform: scale(0.95);
+        button:active { transform: scale(0.95); }
+        .file-upload { background: rgba(10,10,15,0.95); border: 2px solid #ff00cc; color: #ff00cc; }
+        #start-btn, #resume-btn { 
+            background: #ff00cc;
+            box-shadow: 0 5px 20px rgba(255, 0, 204, 0.5); 
         }
-        .file-upload { background: rgba(10,10,15,0.95); border: 2px solid #ff00cc; color: #ff00cc;
+        #start-btn:disabled { 
+            background: #333;
+            color: #666; box-shadow: none; cursor: not-allowed; 
         }
-        #start-btn, #resume-btn { background: #ff00cc;
-            box-shadow: 0 5px 20px rgba(255, 0, 204, 0.5); }
-        #start-btn:disabled { background: #333;
-            color: #666; box-shadow: none; cursor: not-allowed; }
 
         .diff-btn-container {
             display: flex;
@@ -319,8 +328,10 @@
             background: rgba(10,10,15,0.8); border-radius: 15px; padding: 15px; margin-bottom: 15px; z-index: 51;
             border: 1px solid rgba(255,255,255,0.1);
         }
-        .hs-entry { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 8px 0; font-size: 0.9rem; align-items: center; }
+        .hs-entry { 
+            display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 8px 0; font-size: 0.9rem; align-items: center; 
+        }
 
         .saved-song-entry {
             display: flex; justify-content: space-between; align-items: center;
@@ -337,23 +348,25 @@
             border-radius: 8px; box-shadow: 0 0 10px rgba(255,51,51,0.4);
         }
 
-        .help-text { width: 85%;
+        .help-text { 
+            width: 85%;
             max-width: 400px; max-height: 55vh; overflow-y: auto; color: #ddd; font-size: 0.9rem; line-height: 1.4; background: rgba(10,10,15,0.9); padding: 15px; border-radius: 15px; margin-bottom: 15px;
-            text-align: left; z-index: 2;}
-        .help-text h3 { color: #ff00cc; margin-top: 0; font-size: 1rem;
-            border-bottom: 1px solid #ff00cc; padding-bottom: 5px; margin-bottom: 8px;}
-        .help-text p { margin-bottom: 10px;
+            text-align: left; z-index: 2;
         }
-        .help-text strong { color: #00ff55;
+        .help-text h3 { 
+            color: #ff00cc; margin-top: 0; font-size: 1rem;
+            border-bottom: 1px solid #ff00cc; padding-bottom: 5px; margin-bottom: 8px;
         }
-        .help-text .white-bold { color: #fff !important; font-weight: bold;
-        }
+        .help-text p { margin-bottom: 10px; }
+        .help-text strong { color: #00ff55; }
+        .help-text .white-bold { color: #fff !important; font-weight: bold; }
 
         #star-rating { font-size: 2.5rem; margin-top: 5px; margin-bottom: 5px; letter-spacing: 5px; z-index: 51; text-align: center;}
-        #new-hs-msg { color: #ffcc00; font-weight: bold;
-            font-size: 1.3rem; margin-top: 5px; animation: pulse 1s infinite; z-index: 51; text-align: center;}
+        #new-hs-msg { 
+            color: #ffcc00; font-weight: bold;
+            font-size: 1.3rem; margin-top: 5px; animation: pulse 1s infinite; z-index: 51; text-align: center;
+        }
 
-        /* Score & Combo */
         #score-display { 
             font-size: 3.8rem;
             font-weight: 900; 
@@ -368,21 +381,29 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,1);
         }
         
-        #highscore-display { background: rgba(10,10,15,0.8);
+        #highscore-display { 
+            background: rgba(10,10,15,0.8);
             padding: 5px 15px; border-radius: 10px; color: #ffcc00; margin-top: 0px; font-weight: bold; font-size: 0.9rem;
-            z-index: 51;}
-        #accuracy-display { font-size: 1.1rem; color: #ccc; margin-bottom: 5px; font-weight: bold;
-            z-index: 51; text-align: center;}
-        #max-combo-display { font-size: 1.1rem; color: #ff00cc; margin-bottom: 10px; font-weight: bold;
-            z-index: 51; text-align: center;}
+            z-index: 51;
+        }
+        #accuracy-display { 
+            font-size: 1.1rem; color: #ccc; margin-bottom: 5px; font-weight: bold;
+            z-index: 51; text-align: center;
+        }
+        #max-combo-display { 
+            font-size: 1.1rem; color: #ff00cc; margin-bottom: 10px; font-weight: bold;
+            z-index: 51; text-align: center;
+        }
         
-        @keyframes perfectFlight { 0% { transform: translateY(100px) scale(0.6);
-            opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1;
-            } }
-        @keyframes perfectPulse { 0% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ff8800;
-            transform: scale(1); } 50% { text-shadow: 0 0 20px #fff, 0 0 40px #ffd700; transform: scale(1.05);
-            } 100% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ff8800; transform: scale(1);
-            } }
+        @keyframes perfectFlight { 
+            0% { transform: translateY(100px) scale(0.6); opacity: 0; } 
+            100% { transform: translateY(0) scale(1); opacity: 1; } 
+        }
+        @keyframes perfectPulse { 
+            0% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ff8800; transform: scale(1); } 
+            50% { text-shadow: 0 0 20px #fff, 0 0 40px #ffd700; transform: scale(1.05); } 
+            100% { text-shadow: 0 0 10px #ffd700, 0 0 20px #ff8800; transform: scale(1); } 
+        }
         .anim-perfect {
             animation: perfectFlight 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, perfectPulse 2s ease-in-out infinite 3.5s;
             font-size: 2.2rem !important; line-height: 1.2 !important; text-align: center !important;
@@ -401,13 +422,13 @@
             margin-bottom: 20px !important;
         }
 
-        @keyframes fadeIn { from { opacity: 0;
-            transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .fade-in { animation: fadeIn 0.8s ease forwards;
-            }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        .fade-in { animation: fadeIn 0.8s ease forwards; }
 
-        #ghost-ai { display: none !important; opacity: 0; pointer-events: none; position: absolute;
-            z-index: -9999; }
+        #ghost-ai { display: none !important; opacity: 0; pointer-events: none; position: absolute; z-index: -9999; }
             
         .popup-box {
             background: rgba(20, 20, 30, 0.95);
@@ -427,8 +448,17 @@
         #app-exit-screen h1 { color: #fff; text-shadow: none; animation: none; background: none; -webkit-text-fill-color: #fff; margin-bottom: 20px; }
         #app-exit-screen p { color: #888; font-size: 1rem; margin-bottom: 30px; text-align: center; }
 
-        #challenge-popup { position: absolute; width: 80%; max-width: 320px; background: rgba(15, 15, 25, 0.98); border: 2px solid #ffaa00; border-radius: 15px; padding: 15px; display: flex; flex-direction: column; align-items: center; z-index: 100; box-shadow: 0 0 30px rgba(0,0,0,0.8); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .slot-machine-mini { width: 100%; background: #000; border-radius: 8px; margin: 10px 0; padding: 12px; min-height: 60px; display: flex; align-items: center; justify-content: center; border: 1px solid #333; overflow: hidden; }
+        #challenge-popup { 
+            position: absolute; width: 80%; max-width: 320px; background: rgba(15, 15, 25, 0.98); 
+            border: 2px solid #ffaa00; border-radius: 15px; padding: 15px; display: flex; 
+            flex-direction: column; align-items: center; z-index: 100; box-shadow: 0 0 30px rgba(0,0,0,0.8); 
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .slot-machine-mini { 
+            width: 100%; background: #000; border-radius: 8px; margin: 10px 0; padding: 12px; 
+            min-height: 60px; display: flex; align-items: center; justify-content: center; 
+            border: 1px solid #333; overflow: hidden; 
+        }
         #slot-text-mini { color: #ffaa00; font-size: 0.95rem; font-weight: bold; text-align: center; text-transform: uppercase; }
         .rolling-mini { animation: blurRoll 0.1s infinite linear; }
         .popup-small-btn { width: 90% !important; padding: 8px 15px !important; font-size: 0.85rem !important; margin: 4px 0 !important; }
@@ -492,7 +522,7 @@
         
         <label class="file-upload">
             🎵 Neuen Song laden
-            <input type="file" id="audio-upload" accept="audio/*" style="display:none;">
+            <input type="file" id="audio-upload" accept="audio/*, .mp3, .m4a, .aac, .wav, .ogg, .flac, audio/mpeg, audio/mp4, audio/x-m4a, audio/aac, audio/wav" style="display:none;">
         </label>
         <div id="song-name" style="color:#00eeff; margin:10px 0; font-weight:bold; z-index: 51; text-align: center;">Kein Song ausgewählt</div>
         
@@ -576,11 +606,11 @@
             So bleibt dein Fortschritt erhalten.</p>
 
             <h3>📂 Eigene Songs laden</h3>
-            <p><strong>Android:</strong> Auf "Neuen Song laden" tippen und Song aus dem Dateimanager auswählen.</p>
+            <p><strong>Android:</strong> Auf "Neuen Song laden" tippen und Song aus dem Dateimanager / Musik-Ordner auswählen.</p>
             <p><strong>iPhone / iPad:</strong><br>
-            1. Speicher deine MP3-Datei zuerst lokal in der <span class="white-bold">"Dateien"-App</span>.<br>
+            1. Speicher deinen Song (.mp3, .m4a etc.) in der <span class="white-bold">"Dateien"-App</span> (z.B. unter "Downloads" oder "Auf meinem iPhone").<br>
             2. Tippe hier auf "Neuen Song laden".<br>
-            3. Wähle deine Datei aus der Liste aus.</p>
+            3. Wähle deine Song-Datei einfach aus der Liste aus.</p>
         </div>
         <button id="help-back-btn" style="background: #555;">Alles klar!</button>
     </div>
@@ -672,6 +702,7 @@
     let notes = [], floatingTexts = [], confetti = [], flames = [], fireworks = [], pulsingStars = [], beatmap = [];
     let laneGlowTimers = [0, 0, 0, 0];
     let audioCtx, audioEle, delayNode, audioFileUrl, currentSongName = "";
+    let mediaSourceNode = null;
     const LANES = 4, COLORS = ['#ff00cc', '#00eeff', '#00ff55', '#ffaa00'];
     let lastTime = 0, hitZoneY = 0, noteSpeed = 0, trackWidth = 0, trackMargin = 20, boardOpacity = 1.0, targetBoardOpacity = 1.0;
     let currentDifficulty = 'Mittel';
@@ -821,7 +852,6 @@
     function resize() {
         const container = document.getElementById('game-container');
         canvas.width = container.clientWidth; canvas.height = container.clientHeight;
-        // Hitbox und Kästchen um weitere 10 Pixel nach oben verschoben: 145px statt 135px vom unteren Rand
         hitZoneY = canvas.height - 145; 
         noteSpeed = (hitZoneY + 50) / 1.5;
         trackMargin = 20; trackWidth = canvas.width - (trackMargin * 2);
@@ -866,7 +896,9 @@
     menuBtn.onclick = () => {
         if (isPlaying) { 
             isPlaying = false;
-            isPaused = true; audioEle.pause(); pauseScreen.classList.remove('hidden'); 
+            isPaused = true; 
+            if (audioEle) audioEle.pause(); 
+            pauseScreen.classList.remove('hidden'); 
             topControls.classList.add('hidden');
         }
         else { 
@@ -907,8 +939,10 @@
     }
 
     function goToStartScreen() {
-        if (audioEle) { audioEle.pause();
-            audioEle.currentTime = 0; }
+        if (audioEle) { 
+            audioEle.pause();
+            audioEle.currentTime = 0; 
+        }
         clearVisualsAndStates();
         draw();
         
@@ -937,12 +971,17 @@
     document.getElementById('go-home-btn').onclick = goToStartScreen;
     
     document.getElementById('resume-btn').onclick = () => { 
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
         pauseScreen.classList.add('hidden'); 
         topControls.classList.remove('hidden');
         startCountdown(); 
     };
     
-    document.getElementById('ms-help-btn').onclick = () => { mainSettingsScreen.classList.add('hidden'); helpScreen.classList.remove('hidden'); previousScreen = 'main'; };
+    document.getElementById('ms-help-btn').onclick = () => { 
+        mainSettingsScreen.classList.add('hidden'); 
+        helpScreen.classList.remove('hidden'); 
+        previousScreen = 'main'; 
+    };
     
     document.getElementById('pause-help-btn').onclick = () => { 
         pauseScreen.classList.add('hidden'); 
@@ -1003,6 +1042,19 @@
         if (currentLoopId) cancelAnimationFrame(currentLoopId); 
         clearVisualsAndStates();
         
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        if (audioEle) {
+            audioEle.pause();
+            audioEle.currentTime = 0;
+            let primePlay = audioEle.play();
+            if (primePlay !== undefined) {
+                primePlay.then(() => {
+                    audioEle.pause();
+                    audioEle.currentTime = 0;
+                }).catch(() => {});
+            }
+        }
+        
         perfects = 0; greats = 0;
         oks = 0; misses = 0; totalMisses = 0; score = 0; combo = 0; maxCombo = 0;
         multiplier = 1; spawnedNotes = 0;
@@ -1018,7 +1070,6 @@
             titleEl.style.background = "";
         }
         document.getElementById('game-over-content').classList.remove('fade-in');
-        if (audioEle) { audioEle.pause(); audioEle.currentTime = 0; }
         
         gameOverScreen.classList.add('hidden');
         pauseScreen.classList.add('hidden');
@@ -1072,8 +1123,10 @@
             let sum = 0;
             let count = 0;
             for (let j = 0; j < 100; j++) {
-                if (i + j < data.length) { sum += Math.abs(data[i + j]);
-                count++; }
+                if (i + j < data.length) { 
+                    sum += Math.abs(data[i + j]);
+                    count++; 
+                }
             }
             totalVolume += (sum / count);
             sampleCount++;
@@ -1091,8 +1144,10 @@
             let sum = 0;
             let count = 0;
             for(let j=0; j<100; j++) {
-                if(i+j < data.length) { sum += Math.abs(data[i+j]);
-                count++; }
+                if(i+j < data.length) { 
+                    sum += Math.abs(data[i+j]);
+                    count++; 
+                }
             }
             let localVolume = sum / count;
             let time = i / filteredBuffer.sampleRate;
@@ -1123,6 +1178,34 @@
         if (currentLoopId) cancelAnimationFrame(currentLoopId);
         localStorage.setItem('gemma_player_name', playerNameInput.value.trim() || "Unbekannt");
         
+        // 1. AudioContext sofort synchron beim Nutzer-Touch entsperren
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
+        // 2. Audio-Element sofort instanziieren und für iOS vorab freischalten
+        if (audioEle) {
+            audioEle.pause();
+        }
+        audioEle = new Audio();
+        audioEle.src = audioFileUrl;
+        audioEle.preload = "auto";
+        audioEle.playsInline = true;
+        
+        // Stumme Voraktivierung für iOS Safari Autoplay-Berechtigung
+        audioEle.muted = true;
+        let primePromise = audioEle.play();
+        if (primePromise !== undefined) {
+            primePromise.then(() => {
+                audioEle.pause();
+                audioEle.currentTime = 0;
+                audioEle.muted = false;
+            }).catch(() => {
+                audioEle.muted = false;
+            });
+        }
+
         clearVisualsAndStates();
         perfects = 0; greats = 0; oks = 0; misses = 0; totalMisses = 0;
         score = 0; combo = 0; maxCombo = 0; multiplier = 1; spawnedNotes = 0;
@@ -1136,11 +1219,12 @@
         topControls.classList.add('ingame-active');
         menuBtn.innerHTML = ICON_PAUSE;
 
-        audioEle = new Audio(audioFileUrl);
-        const source = audioCtx.createMediaElementSource(audioEle);
+        // Web Audio Routing mit 1.5s Vorlauf-Verzögerung verbinden
+        mediaSourceNode = audioCtx.createMediaElementSource(audioEle);
         delayNode = audioCtx.createDelay(2.5);
         delayNode.delayTime.value = 1.5;
-        source.connect(delayNode); delayNode.connect(audioCtx.destination);
+        mediaSourceNode.connect(delayNode); 
+        delayNode.connect(audioCtx.destination);
         audioEle.onended = () => audioEnded = true;
         
         startCountdown();
@@ -1176,8 +1260,23 @@
             isPlaying = true;
             healthBarContainer.classList.remove('hidden');
             topControls.classList.remove('hidden'); 
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            audioEle.play(); 
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            
+            let playPromise = audioEle.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => {
+                    // Fallback bei iOS-Sicherheitsblockade: Sofortiger Start beim nächsten Touch
+                    const touchToPlay = () => {
+                        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+                        audioEle.play();
+                        window.removeEventListener('touchstart', touchToPlay);
+                        window.removeEventListener('mousedown', touchToPlay);
+                    };
+                    window.addEventListener('touchstart', touchToPlay, { once: true });
+                    window.addEventListener('mousedown', touchToPlay, { once: true });
+                });
+            }
+            
             lastTime = performance.now();
             currentLoopId = requestAnimationFrame(gameLoop);
         }
@@ -1275,7 +1374,6 @@
 
         document.getElementById('final-score').innerText = `Punkte: ${score}`;
         
-        // Neues Sterne-Berechnungssystem exakt nach Tabelle
         let stars = 0;
         let starHtml = "";
         
@@ -1338,9 +1436,15 @@
             if(laneGlowTimers[i] > 0) laneGlowTimers[i] -= dt;
         }
 
-        if (isPlaying) {
+        if (isPlaying && audioEle) {
             let cTime = audioEle.currentTime;
-            beatmap.forEach(b => { if (!b.spawned && b.time <= cTime) { b.spawned = true; notes.push({ lane: b.lane, y: -50, safe: false }); spawnedNotes++; }});
+            beatmap.forEach(b => { 
+                if (!b.spawned && b.time <= cTime) { 
+                    b.spawned = true; 
+                    notes.push({ lane: b.lane, y: -50, safe: false }); 
+                    spawnedNotes++; 
+                }
+            });
             for (let i = notes.length - 1; i >= 0; i--) {
                 notes[i].y += noteSpeed * dt;
                 if (notes[i].y > canvas.height + 50) { 
@@ -1359,8 +1463,10 @@
             if (audioEnded && notes.length === 0 && !isGameOver) triggerGameOver(true);
         }
 
-        for (let i = floatingTexts.length - 1; i >= 0; i--) { floatingTexts[i].y -= dt * 60;
-            floatingTexts[i].life -= dt * 1.5; if(floatingTexts[i].life <= 0) floatingTexts.splice(i, 1);
+        for (let i = floatingTexts.length - 1; i >= 0; i--) { 
+            floatingTexts[i].y -= dt * 60;
+            floatingTexts[i].life -= dt * 1.5; 
+            if(floatingTexts[i].life <= 0) floatingTexts.splice(i, 1);
         }
         
         for (let i = confetti.length - 1; i >= 0; i--) { 
@@ -1379,8 +1485,12 @@
             }
         }
 
-        for (let i = flames.length - 1; i >= 0; i--) { flames[i].x += flames[i].vx;
-            flames[i].y += flames[i].vy; flames[i].size *= 0.94; flames[i].life -= dt * 2.0; if(flames[i].life <= 0 || flames[i].size < 1) flames.splice(i, 1);
+        for (let i = flames.length - 1; i >= 0; i--) { 
+            flames[i].x += flames[i].vx;
+            flames[i].y += flames[i].vy; 
+            flames[i].size *= 0.94; 
+            flames[i].life -= dt * 2.0; 
+            if(flames[i].life <= 0 || flames[i].size < 1) flames.splice(i, 1);
         }
 
         if (activeEffects.flames && Math.random() < 0.3) {
@@ -1492,14 +1602,22 @@
         confetti.forEach(c => { ctx.fillStyle = c.color; ctx.globalAlpha = Math.max(0, Math.min(1, c.life)); ctx.fillRect(c.x, c.y, c.size, c.size); });
         ctx.globalAlpha = 1.0;
         ctx.font = '900 24px sans-serif'; ctx.textAlign = 'center';
-        for (let t of floatingTexts) { ctx.fillStyle = t.color;
-            ctx.globalAlpha = Math.max(0, t.life); ctx.fillText(t.text, t.x, t.y); }
+        for (let t of floatingTexts) { 
+            ctx.fillStyle = t.color;
+            ctx.globalAlpha = Math.max(0, t.life); 
+            ctx.fillText(t.text, t.x, t.y); 
+        }
     }
 
     function updateUI() {
         document.getElementById('score-display').innerText = score;
         const cd = document.getElementById('combo-display');
-        if (combo > 2) { cd.innerText = `${combo}x COMBO`; cd.style.color = combo > 15 ? '#ff00cc' : '#ffcc00'; } else { cd.innerText = ''; }
+        if (combo > 2) { 
+            cd.innerText = `${combo}x COMBO`; 
+            cd.style.color = combo > 15 ? '#ff00cc' : '#ffcc00'; 
+        } else { 
+            cd.innerText = ''; 
+        }
         let lives = Math.max(0, 10 - misses);
         healthBoxes.forEach((box, i) => {
             if (i < lives) box.style.background = lives > 5 ? 'rgba(0, 200, 80, 0.6)' : (lives > 2 ? 'rgba(220, 150, 0, 0.6)' : 'rgba(220, 40, 40, 0.6)');
@@ -1510,7 +1628,6 @@
     function hit(lane) {
         if (!isPlaying || isGameOver || isCountingDown) return;
         
-        // --- AKTUALISIERTE HITBOX: +/- 50 PIXEL ---
         let target = notes.find(n => n.lane === lane && n.y > hitZoneY - 50 && n.y < hitZoneY + 50);
         
         if (target) {
@@ -1518,7 +1635,6 @@
             let dist = Math.abs(target.y - hitZoneY);
             let rating = '', rColor = '';
             
-            // --- SCHWELLENWERTE (Perfekt 25, Sehr Gut 35, Gut nun bis 50) ---
             if (dist < 25) { 
                 score += 100 * multiplier; perfects++; rating = 'PERFEKT!'; rColor = '#fff'; 
             } else if (dist < 35) { 
@@ -1546,7 +1662,6 @@
             notes = notes.filter(n => n !== target);
             updateUI();
         } else {
-            // "TOO EARLY" CHECK: Basierend auf der neuen Hitbox-Grenze (-50)
             let earlyNote = notes.find(n => n.lane === lane && n.y > hitZoneY - 150 && n.y <= hitZoneY - 50);
             if (earlyNote) {
                 earlyNote.safe = true;
@@ -1563,7 +1678,8 @@
     }
 
     canvas.addEventListener('touchstart', e => {
-        e.preventDefault(); if (!isPlaying || isPaused || isCountingDown) return;
+        e.preventDefault(); 
+        if (!isPlaying || isPaused || isCountingDown) return;
         let rect = canvas.getBoundingClientRect();
         for (let i = 0; i < e.touches.length; i++) {
             let x = e.touches[i].clientX - rect.left - trackMargin;
@@ -1579,7 +1695,7 @@
         if (!isPlaying || isPaused || isCountingDown) return;
         let x = e.clientX - canvas.getBoundingClientRect().left - trackMargin;
         let y = e.clientY - canvas.getBoundingClientRect().top;
-        if (y > hitZoneY - 150) {
+        if (y > hitZoneY - 150) { 
             let lane = Math.floor(x / (trackWidth/LANES));
             if (lane >= 0 && lane < LANES) hit(lane);
         }
